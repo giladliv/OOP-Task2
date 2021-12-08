@@ -1,9 +1,6 @@
 package Simulator;
 
-import api.DirectedWeightedGraph;
-import api.DirectedWeightedGraphAlgorithms;
-import api.GeoLocation;
-import api.NodeData;
+import api.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -44,24 +41,25 @@ public class ShowSimulator extends JFrame {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        canvas = new Canvas(frame);
+        canvas = new Canvas(frame, graph);
 
         button1 = new JButton();
         button1.setText("Click");
         button1.setFont(new Font(button1.getFont().getFontName(), button1.getFont().getStyle(), 12));
         button1.setFocusPainted(false);
 
-        makeVer(1, 200, 400, LEN);
-        makeVer(2, 400, 100, LEN);
-        makeVer(3, 0, 0, LEN);
+        //makeVer(1, 200, 400, LEN);
+        //makeVer(2, 400, 100, LEN);
+        //makeVer(3, 0, 0, LEN);
 
         //setArrow(shpeNode.get(1), shpeNode.get(2));
-        canvas.setArrow(shpeNode.get(1), shpeNode.get(2));
+        //canvas.setArrow(shpeNode.get(1), shpeNode.get(2));
+        paintAllNodesEdges();
         canvas.setVisible(true);
         canvas.repaint();
         //button1.setRota
         panel.setLayout(null);
-
+        MouseAdapterLabel.canMove = false;
 
         //button1.
         button1.addActionListener(new ActionListener() {
@@ -83,29 +81,25 @@ public class ShowSimulator extends JFrame {
         frame.repaint();
     }
 
-    private double[][] getRangeNodes()
+    public void paintAllNodesEdges()
     {
-        double[][] range = new double[][] {{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE},
-                {Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE}};
-
         Iterator<NodeData> itNode = _graph.nodeIter();
         while (itNode.hasNext())
         {
-            GeoLocation geo = itNode.next().getLocation();
-            range[0][0] = Math.min(range[0][0], geo.x());
-            range[0][1] = Math.min(range[0][1], geo.y());
-            range[0][2] = Math.min(range[0][2], geo.z());
-
-            range[1][0] = Math.max(range[1][0], geo.x());
-            range[1][1] = Math.max(range[1][1], geo.y());
-            range[1][2] = Math.max(range[1][2], geo.z());
+            makeVer(itNode.next(), LEN);
         }
-
-        return range;
+        Iterator<EdgeData> itEdge = _graph.edgeIter();
+        while (itEdge.hasNext())
+        {
+            EdgeData edge = itEdge.next();
+            canvas.setArrow(shpeNode.get(edge.getSrc()), shpeNode.get(edge.getDest()));
+        }
     }
-
-    
-
+    public void makeVer(NodeData node, int len)
+    {
+        Point p = canvas.getPointFromGeo(node.getLocation());
+        makeVer(node.getKey(), p.x, p.y, len);
+    }
     public void makeVer(int num, int x, int y, int len)
     {
         String numStr = "" + num;
@@ -121,7 +115,7 @@ public class ShowSimulator extends JFrame {
         MouseAdapterLabel mouseAdapterLabel = new MouseAdapterLabel(shape, lbOnShape, canvas);
         shape.addMouseListener(mouseAdapterLabel);
         shape.addMouseMotionListener(mouseAdapterLabel);
-        MouseAdapterLabel.canMove = true;
+
 
         shape.setName(numStr);
         lbOnShape.setName(numStr);
@@ -134,7 +128,14 @@ public class ShowSimulator extends JFrame {
 
     public static void main(String[] args) throws IOException {
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
-        ShowSimulator dialog = new ShowSimulator();
+        DirectedWeightedGraphAlgorithms algorithm = new GraphAlgorithms();
+
+        if (algorithm.load("data/G1.json"))
+        {
+            DirectedWeightedGraph graph = algorithm.getGraph();
+            ShowSimulator dialog = new ShowSimulator(graph);
+        }
+
         //System.exit(0);
     }
 
@@ -165,7 +166,8 @@ class MouseAdapterLabel extends MouseAdapter
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
+    public void mousePressed(MouseEvent e)
+    {
         if (!canMove)
         {
             inDrag = false;

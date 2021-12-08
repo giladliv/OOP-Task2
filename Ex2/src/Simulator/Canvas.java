@@ -1,10 +1,16 @@
 package Simulator;
 
+import api.DirectedWeightedGraph;
+import api.GeoLocation;
+import api.GeoLocationImp;
+import api.NodeData;
+
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import javax.swing.*;
 
 public class Canvas extends JComponent
@@ -14,14 +20,60 @@ public class Canvas extends JComponent
     private HashMap<Integer, JLabel> nodes;
     private HashMap<Integer, HashSet<Integer>> edges;
     private int LEN = ShowSimulator.LEN;
+    private DirectedWeightedGraph _graph;
+    private GeoLocation _ratioAxis;
+    private GeoLocation _startPoint;
 
 
-    public Canvas(JFrame frame)
+    public Canvas(JFrame frame, DirectedWeightedGraph graph)
     {
-        setBounds(frame.getX() + LEN / 2, frame.getY() + LEN / 2, frame.getWidth() - LEN, frame.getHeight() - LEN);
+        setBounds(frame.getX() + LEN / 2, frame.getY() + LEN / 2, frame.getWidth() - 2*LEN, frame.getHeight() - 2*LEN);
         System.out.println();
         nodes = new HashMap<>();
         edges = new HashMap<>();
+        _graph = graph;
+        setRatioPoins();
+    }
+
+    private GeoLocation[] getRangeNodes()
+    {
+        double[][] range = new double[][] {{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE},
+                {Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE}};
+
+        Iterator<NodeData> itNode = _graph.nodeIter();
+        while (itNode.hasNext())
+        {
+            GeoLocation geo = itNode.next().getLocation();
+            range[0][0] = Math.min(range[0][0], geo.x());
+            range[0][1] = Math.min(range[0][1], geo.y());
+            range[0][2] = Math.min(range[0][2], geo.z());
+
+            range[1][0] = Math.max(range[1][0], geo.x());
+            range[1][1] = Math.max(range[1][1], geo.y());
+            range[1][2] = Math.max(range[1][2], geo.z());
+        }
+
+        return new GeoLocation[]{new GeoLocationImp(range[0][0], range[0][1], range[0][2]),
+                                    new GeoLocationImp(range[1][0], range[1][1], range[1][2])};
+    }
+
+    public void setRatioPoins()
+    {
+        GeoLocation[] minMaxPoints = getRangeNodes();
+        double dx = (minMaxPoints[1].x() - minMaxPoints[0].x()) / getWidth();
+        double dy = (minMaxPoints[1].y() - minMaxPoints[0].y()) / getHeight();
+        _ratioAxis = new GeoLocationImp(dx, dy, 0);
+        _startPoint = minMaxPoints[0];
+    }
+
+
+
+    public Point getPointFromGeo(GeoLocation location)
+    {
+        double x = location.x(), y = location.y();
+        Point p = new Point((int)((x - _startPoint.x()) / _ratioAxis.x()), (int)((y-_startPoint.y()) / _ratioAxis.y()));
+        p.setLocation(p.x - LEN / 2, getHeight() - p.y - LEN/2);
+        return p;
     }
 
     private Line2D.Double getLine(int x1, int y1, int x2, int y2)
