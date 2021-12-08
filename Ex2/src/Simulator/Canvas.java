@@ -27,7 +27,7 @@ public class Canvas extends JComponent
 
     public Canvas(JFrame frame, DirectedWeightedGraph graph)
     {
-        setBounds(frame.getX() + LEN / 2, frame.getY() + LEN / 2, frame.getWidth() - 2*LEN, frame.getHeight() - 2*LEN);
+        setBounds(frame.getX() + LEN / 2, frame.getY() + LEN / 2, frame.getWidth() - LEN, frame.getHeight() - LEN);
         System.out.println();
         nodes = new HashMap<>();
         edges = new HashMap<>();
@@ -60,8 +60,8 @@ public class Canvas extends JComponent
     public void setRatioPoins()
     {
         GeoLocation[] minMaxPoints = getRangeNodes();
-        double dx = (minMaxPoints[1].x() - minMaxPoints[0].x()) / getWidth();
-        double dy = (minMaxPoints[1].y() - minMaxPoints[0].y()) / getHeight();
+        double dx = (minMaxPoints[1].x() - minMaxPoints[0].x()) / (getWidth() - 3*LEN);
+        double dy = (minMaxPoints[1].y() - minMaxPoints[0].y()) / (getHeight() + LEN);
         _ratioAxis = new GeoLocationImp(dx, dy, 0);
         _startPoint = minMaxPoints[0];
     }
@@ -72,7 +72,7 @@ public class Canvas extends JComponent
     {
         double x = location.x(), y = location.y();
         Point p = new Point((int)((x - _startPoint.x()) / _ratioAxis.x()), (int)((y-_startPoint.y()) / _ratioAxis.y()));
-        p.setLocation(p.x - LEN / 2, getHeight() - p.y - LEN/2);
+        p.setLocation(p.x, getHeight() - p.y);
         return p;
     }
 
