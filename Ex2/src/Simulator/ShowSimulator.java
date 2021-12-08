@@ -14,11 +14,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class ShowSimulator extends JFrame {
 
-    public static final int LEN = 50;
+    public static final int LEN = 35;
     private JFrame frame;
     private JPanel panel;
     private JButton button1;
@@ -59,7 +60,7 @@ public class ShowSimulator extends JFrame {
         canvas.repaint();
         //button1.setRota
         panel.setLayout(null);
-        MouseAdapterLabel.canMove = false;
+        MouseAdapterLabel.canMove = true;
 
         //button1.
         button1.addActionListener(new ActionListener() {
@@ -139,7 +140,6 @@ public class ShowSimulator extends JFrame {
         //System.exit(0);
     }
 
-
 }
 
 class MouseAdapterLabel extends MouseAdapter
@@ -151,18 +151,11 @@ class MouseAdapterLabel extends MouseAdapter
     private static int startX = -1, startY = -1;
     public static boolean canMove = false;
 
-    public MouseAdapterLabel(Component cmp, Component second, Canvas canvas, boolean isCanMove)
+    public MouseAdapterLabel(Component cmp, Component second, Canvas canvas)
     {
         _cmp = cmp;
         _scndCmp = second;
         _canvas = canvas;
-        canMove = isCanMove;
-
-    }
-
-    public MouseAdapterLabel(Component cmp, Component second, Canvas canvas)
-    {
-        this(cmp, second, canvas, false);
     }
 
     @Override
@@ -185,6 +178,21 @@ class MouseAdapterLabel extends MouseAdapter
     public void mouseReleased(MouseEvent e)
     {
         inDrag = false;
+        if (canMove)
+        {
+            try
+            {
+                int src = Integer.parseInt(_cmp.getName());
+                int dest = Integer.parseInt(_scndCmp.getName());
+                _canvas.updateLocation(src, _cmp.getLocation());
+                _canvas.updateLocation(dest, _scndCmp.getLocation());
+                //printArrow(src, dest);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 
     // And two methods from MouseMotionListener:
@@ -199,7 +207,6 @@ class MouseAdapterLabel extends MouseAdapter
 
         Point p = MouseInfo.getPointerInfo().getLocation();
         p.translate(-startX, -startY);
-        //System.out.println("mouse drag to " + p);
         if (inDrag)
         {
             _cmp.setLocation(p);

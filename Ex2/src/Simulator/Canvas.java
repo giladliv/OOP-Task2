@@ -23,6 +23,7 @@ public class Canvas extends JComponent
     private DirectedWeightedGraph _graph;
     private GeoLocation _ratioAxis;
     private GeoLocation _startPoint;
+    private static final double arwHead = 6.0;
 
 
     public Canvas(JFrame frame, DirectedWeightedGraph graph)
@@ -60,20 +61,25 @@ public class Canvas extends JComponent
     public void setRatioPoins()
     {
         GeoLocation[] minMaxPoints = getRangeNodes();
-        double dx = (minMaxPoints[1].x() - minMaxPoints[0].x()) / (getWidth() - 3*LEN);
-        double dy = (minMaxPoints[1].y() - minMaxPoints[0].y()) / (getHeight() + LEN);
+        double dx = (minMaxPoints[1].x() - minMaxPoints[0].x()) / (getWidth() - 2*LEN);
+        double dy = (minMaxPoints[1].y() - minMaxPoints[0].y()) / (getHeight() - 2 *LEN);
         _ratioAxis = new GeoLocationImp(dx, dy, 0);
         _startPoint = minMaxPoints[0];
     }
-
-
 
     public Point getPointFromGeo(GeoLocation location)
     {
         double x = location.x(), y = location.y();
         Point p = new Point((int)((x - _startPoint.x()) / _ratioAxis.x()), (int)((y-_startPoint.y()) / _ratioAxis.y()));
-        p.setLocation(p.x, getHeight() - p.y);
+        p.setLocation(p.x, getHeight() - p.y - 2*LEN);
         return p;
+    }
+    public GeoLocation getGeoFromPoint(Point p)
+    {
+        double x = p.x * _ratioAxis.x() + _startPoint.x();
+        double y = (getHeight() - p.y - 2*LEN) * _ratioAxis.y() + _startPoint.y();
+
+        return new GeoLocationImp(x, y, 0);
     }
 
     private Line2D.Double getLine(int x1, int y1, int x2, int y2)
@@ -141,7 +147,7 @@ public class Canvas extends JComponent
         p4.translate((int)((dist-r)*Math.cos(angle)), (int)((dist-r)*Math.sin(angle)));
 
         dist = center1.distance(p4) - 10;
-        double deg = Math.abs(Math.toDegrees(Math.asin(6.0/dist)));
+        double deg = Math.abs(Math.toDegrees(Math.asin(arwHead/dist)));
         double alpha = Math.toDegrees(Math.atan2(p4.y - center1.y, p4.x - center1.x));
         double beta = Math.toRadians(alpha + deg);
         Point pTri1 = new Point(center1);
@@ -162,6 +168,21 @@ public class Canvas extends JComponent
 //        can.repaint();
 
         //panel.add(shape);
+    }
+
+    public boolean updateLocation(int nodeId, Point p)
+    {
+        try
+        {
+            _graph.getNode(nodeId).setLocation(getGeoFromPoint(p));
+            System.out.println(_graph.getNode(nodeId).getLocation());
+
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+        return true;
     }
 
 
