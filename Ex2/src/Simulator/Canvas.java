@@ -18,7 +18,7 @@ public class Canvas extends JComponent
 
     public Canvas(JFrame frame)
     {
-        setBounds(frame.getX(), frame.getY(), frame.getWidth(), frame.getHeight());
+        setBounds(frame.getX() + LEN / 2, frame.getY() + LEN / 2, frame.getWidth() - LEN, frame.getHeight() - LEN);
         System.out.println();
         nodes = new HashMap<>();
         edges = new HashMap<>();

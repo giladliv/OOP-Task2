@@ -1,5 +1,10 @@
 package Simulator;
 
+import api.DirectedWeightedGraph;
+import api.DirectedWeightedGraphAlgorithms;
+import api.GeoLocation;
+import api.NodeData;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -12,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class ShowSimulator extends JFrame {
 
@@ -23,16 +29,16 @@ public class ShowSimulator extends JFrame {
     private HashMap<Integer, JLabel> shpeNode;
     private HashMap<Integer, JLabel> labelNode;
     private Canvas canvas;
+    private DirectedWeightedGraph _graph;
 
-
-
-    public ShowSimulator()
+    public ShowSimulator(DirectedWeightedGraph graph)
     {
         frame = new JFrame("HELLO");
         circle = new ImageIcon("pics/circleS.png");
         shpeNode = new HashMap<>();
         labelNode = new HashMap<>();
         panel = new JPanel();
+        _graph = graph;
 
         frame.setExtendedState(MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -47,13 +53,12 @@ public class ShowSimulator extends JFrame {
 
         makeVer(1, 200, 400, LEN);
         makeVer(2, 400, 100, LEN);
+        makeVer(3, 0, 0, LEN);
 
         //setArrow(shpeNode.get(1), shpeNode.get(2));
         canvas.setArrow(shpeNode.get(1), shpeNode.get(2));
         canvas.setVisible(true);
         canvas.repaint();
-
-        button1.setBounds(100, 100, 60, 60);
         //button1.setRota
         panel.setLayout(null);
 
@@ -77,6 +82,29 @@ public class ShowSimulator extends JFrame {
         frame.setExtendedState(MAXIMIZED_BOTH);
         frame.repaint();
     }
+
+    private double[][] getRangeNodes()
+    {
+        double[][] range = new double[][] {{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE},
+                {Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE}};
+
+        Iterator<NodeData> itNode = _graph.nodeIter();
+        while (itNode.hasNext())
+        {
+            GeoLocation geo = itNode.next().getLocation();
+            range[0][0] = Math.min(range[0][0], geo.x());
+            range[0][1] = Math.min(range[0][1], geo.y());
+            range[0][2] = Math.min(range[0][2], geo.z());
+
+            range[1][0] = Math.max(range[1][0], geo.x());
+            range[1][1] = Math.max(range[1][1], geo.y());
+            range[1][2] = Math.max(range[1][2], geo.z());
+        }
+
+        return range;
+    }
+
+    
 
     public void makeVer(int num, int x, int y, int len)
     {
