@@ -84,17 +84,21 @@ public class ShowSimulator extends JFrame {
 
     public void paintAllNodesEdges()
     {
+        this.shpeNode.clear();
+        this.labelNode.clear();
         Iterator<NodeData> itNode = _graph.nodeIter();
         while (itNode.hasNext())
         {
             makeVer(itNode.next(), LEN);
         }
         Iterator<EdgeData> itEdge = _graph.edgeIter();
+
         while (itEdge.hasNext())
         {
             EdgeData edge = itEdge.next();
-            canvas.setArrow(shpeNode.get(edge.getSrc()), shpeNode.get(edge.getDest()));
+            canvas.setArrow(shpeNode.get(edge.getSrc()), shpeNode.get(edge.getDest()), edge.getWeight());
         }
+        canvas.repaint();
     }
     public void makeVer(NodeData node, int len)
     {

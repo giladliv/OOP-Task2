@@ -18,12 +18,14 @@ public class Canvas extends JComponent
     private Line2D line = new Line2D.Double();
     private Polygon tri = new Polygon();
     private HashMap<Integer, JLabel> nodes;
-    private HashMap<Integer, HashSet<Integer>> edges;
-    private int LEN = ShowSimulator.LEN;
+    private HashMap<Integer, HashMap<Integer, Double>> edges;
+    private static int LEN = ShowSimulator.LEN;
     private DirectedWeightedGraph _graph;
     private GeoLocation _ratioAxis;
     private GeoLocation _startPoint;
     private static final double arwHead = 6.0;
+    private static final double radiusCut = Math.sqrt(Math.pow(LEN/2.0, 2) - Math.pow(arwHead, 2));
+    private HashSet<String> specialEdges;
 
 
     public Canvas(JFrame frame, DirectedWeightedGraph graph)
@@ -34,6 +36,8 @@ public class Canvas extends JComponent
         edges = new HashMap<>();
         _graph = graph;
         setRatioPoins();
+        specialEdges = new HashSet<>();
+        specialEdges.add(1 + "," + 2);
     }
 
     private GeoLocation[] getRangeNodes()
@@ -106,7 +110,7 @@ public class Canvas extends JComponent
         tri.addPoint(p3.x, p3.y);
     }
 
-    public void setArrow(JLabel node1, JLabel node2)
+    public void setArrow(JLabel node1, JLabel node2, double w)
     {
         try
         {
@@ -116,10 +120,10 @@ public class Canvas extends JComponent
             nodes.put(dest, node2);
             if (!edges.containsKey(src))
             {
-                edges.put(src, new HashSet<>());
+                edges.put(src, new HashMap<>());
             }
-            edges.get(src).add(dest);
-            repaint();
+            edges.get(src).put(dest, w);
+            //repaint();
             //printArrow(src, dest);
         }
         catch (Exception ex)
@@ -129,7 +133,7 @@ public class Canvas extends JComponent
 
     }
 
-    public void printArrow(int src, int dest, Graphics2D canvas)
+    public void printDoubeEdge(int src, int dest, Graphics2D canvas)
     {
         JLabel node1 = nodes.get(src);
         JLabel node2 = nodes.get(dest);
@@ -139,9 +143,36 @@ public class Canvas extends JComponent
         Point center2 = node2.getLocation();
         center2.translate(r, r);
 
+        Point original1 = new Point(center1);
+        Point original2 = new Point(center2);
+
+
+
+        double angle = Math.atan2(center2.y - center1.y, center2.x - center1.x);
+        double beta = angle + Math.toRadians(90);
+        center1.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
+        center2.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
+        canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
+        setPartsOfArrow(canvas, radiusCut, center1, center2, edges.get(src).get(dest));
+
+
+        beta = angle - Math.toRadians(90);
+        center1 = new Point(original1);
+        center2 = new Point(original2);
+        center1.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
+        center2.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
+        canvas.setColor(specialEdges.contains(dest + "," + src) ? Color.BLUE : Color.BLACK);
+        setPartsOfArrow(canvas, radiusCut, center2, center1, edges.get(dest).get(src));
+    }
+
+    public void setPartsOfArrow(Graphics2D canvas, double r, Point center1, Point center2, double w)
+    {
         double dist = center1.distance(center2);
         double angle = Math.atan2(center2.y - center1.y, center2.x - center1.x);
 
+        canvas.setFont(new Font("TimesRoman", Font.BOLD, 8));
+        String num = (float) Math.round(w * 100) / 100 + "";
+        canvas.drawString(num , (center1.x + center2.x - num.length() * 4)/2, (center1.y + center2.y)/2);
 
         Point p4 = new Point(center1);
         p4.translate((int)((dist-r)*Math.cos(angle)), (int)((dist-r)*Math.sin(angle)));
@@ -160,14 +191,22 @@ public class Canvas extends JComponent
         setTri(p4, pTri1, pTri2);
         canvas.draw(line);
         canvas.fill(tri);
+    }
 
-//        Line2D line = new Line2D.Double(0, 0, 25, 25);
-//        can.setLine(line);
-//        can.repaint();
-//        line.setLine(100, 200, 500, 600);
-//        can.repaint();
 
-        //panel.add(shape);
+
+    public void printArrow(int src, int dest, Graphics2D canvas)
+    {
+        JLabel node1 = nodes.get(src);
+        JLabel node2 = nodes.get(dest);
+        Point center1 = node1.getLocation();
+        int r = LEN / 2;
+        center1.translate(r, r);
+        Point center2 = node2.getLocation();
+        center2.translate(r, r);
+
+        canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
+        setPartsOfArrow(canvas, r, center1, center2, edges.get(src).get(dest));
     }
 
     public boolean updateLocation(int nodeId, Point p)
@@ -175,8 +214,6 @@ public class Canvas extends JComponent
         try
         {
             _graph.getNode(nodeId).setLocation(getGeoFromPoint(p));
-            System.out.println(_graph.getNode(nodeId).getLocation());
-
         }
         catch (Exception ex)
         {
@@ -195,11 +232,28 @@ public class Canvas extends JComponent
         canvas.setColor(Color.BLACK);
 
         //set the border
+        HashSet<String> edgesStr = new HashSet<>();
         for (int src: edges.keySet())
         {
-            for (int dest: edges.get(src))
+            for (int dest: edges.get(src).keySet())
             {
-                printArrow(src, dest, canvas);
+                String currStr = src + "," + dest;
+                if (edges.containsKey(dest) && edges.get(dest).containsKey(src))
+                {
+                    // complete double check
+                    if (!edgesStr.contains(currStr))
+                    {
+                        printDoubeEdge(src, dest, canvas);
+                        edgesStr.add(dest + "," + src);
+                    }
+                }
+                else
+                {
+                    printArrow(src, dest, canvas);
+                }
+
+                edgesStr.add(currStr);
+
             }
         }
 
