@@ -364,44 +364,5 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
 
         DFS tempDFS = new DFS(graph);
         algo.save("out/Try.json");
-
-        //GeoLocationImp geo = new GeoLocationImp("15,t,8");
-        //System.out.println("x: " + geo.x() + "\ty: " + geo.y() + "\tz: " + geo.z());
-
-        graph = new WeightedGraph();
-        String file =  "data/G1.json";
-        Gson gson = new Gson();
-        try
-        {
-            String strJson = Files.readString(Paths.get(file));
-            Map<String, Object> jsonMap = gson.fromJson(strJson, Map.class);
-            if (jsonMap.containsKey("Nodes"))
-            {
-                ArrayList<Map<String,Object>> arrNodes = (ArrayList)jsonMap.get("Nodes");
-                for (Map<String, Object> nodeMap: arrNodes)
-                {
-                    double id = (double)nodeMap.get("id");
-                    graph.addNode(new Node((int)id, (String)nodeMap.get("pos")));
-                }
-            }
-            if (jsonMap.containsKey("Edges"))
-            {
-                ArrayList<Map<String,Object>> arrEdges = (ArrayList)jsonMap.get("Edges");
-                for (Map<String, Object> edgeMap: arrEdges)
-                {
-                    double src = (double)edgeMap.get("src");
-                    double dest = (double)edgeMap.get("dest");
-                    double w = (double)edgeMap.get("w");
-                    graph.connect((int)src, (int)dest, w);
-                }
-            }
-
-            jsonMap.toString();
-        }
-        catch (Exception ex)
-        {
-            System.err.println("Oops i did it again...");
-            System.err.println(ex.toString());
-        }
     }
 }

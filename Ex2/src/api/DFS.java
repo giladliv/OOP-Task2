@@ -232,8 +232,6 @@ public class DFS
 
     }
 
-
-
     public void setAllShortPath(List<NodeData> nodes)
     {
         for (int times = 0; times < 2; times++)
@@ -255,7 +253,7 @@ public class DFS
     }
 
     private HashMap<Integer, List<NodeData>> allVersions = new HashMap<>();
-    private HashMap<Integer, List<List<NodeData>>> allCircles = new HashMap<>();
+    private HashMap<Integer, HashMap<List<NodeData>, Double>> allCircles = new HashMap<>();
 
     public List<NodeData> setCircles(int x, int y)
     {
@@ -294,15 +292,26 @@ public class DFS
                 {
                     if (!allCircles.containsKey(x))
                     {
-                        allCircles.put(x, new ArrayList<>());
+                        allCircles.put(x, new HashMap<>());
                     }
-                    allCircles.get(x).add(listNodes);
+
+                    allCircles.get(x).put(listNodes, getWeight(listNodes));
                 }
 
                 if (!listNodes.isEmpty())
                     System.out.println(x + " --> " + y + " --> " + x + ":\t" + Arrays.toString(listNodes.toArray()));
             }
         }
+    }
+
+    private double getWeight(List<NodeData> nodes)
+    {
+        double w = 0.0;
+        for (int i = 0; i < nodes.size() - 1; i++)
+        {
+            w += getShortestPathWeight(nodes.get(i).getKey(), nodes.get(i + 1).getKey());
+        }
+        return w;
     }
 
 

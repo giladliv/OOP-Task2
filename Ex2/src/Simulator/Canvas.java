@@ -6,7 +6,9 @@ import api.GeoLocationImp;
 import api.NodeData;
 
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.awt.geom.Line2D;
+import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -149,6 +151,13 @@ public class Canvas extends JComponent
 
     }
 
+    public Point getNearRadPoint(Point point, double beta, double dist)
+    {
+        Point p = new Point(point);
+        p.translate((int)(Math.cos(beta)*dist), (int)(Math.sin(beta)*dist));
+        return p;
+    }
+
     public void printDoubeEdge(int src, int dest, Graphics2D canvas)
     {
         JLabel node1 = nodes.get(src);
@@ -162,14 +171,13 @@ public class Canvas extends JComponent
         Point original1 = new Point(center1);
         Point original2 = new Point(center2);
 
-
-
         double angle = Math.atan2(center2.y - center1.y, center2.x - center1.x);
         double beta = angle + Math.toRadians(90);
         center1.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         center2.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
         setPartsOfArrow(canvas, radiusCut, center1, center2, edges.get(src).get(dest));
+        drawString(canvas, center1, center2, false, edges.get(src).get(dest));
 
 
         beta = angle - Math.toRadians(90);
@@ -179,16 +187,28 @@ public class Canvas extends JComponent
         center2.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         canvas.setColor(specialEdges.contains(dest + "," + src) ? Color.BLUE : Color.BLACK);
         setPartsOfArrow(canvas, radiusCut, center2, center1, edges.get(dest).get(src));
+        drawString(canvas, center1, center2, true, edges.get(dest).get(src));
+    }
+
+    public void drawString(Graphics2D canvas, Point center1, Point center2, boolean isUp, double w)
+    {
+
+        String num = (float) Math.round(w * 100) / 100 + "";
+        AttributedString attr = new AttributedString(num);
+        attr.addAttribute(TextAttribute.BACKGROUND, Color.white);
+        attr.addAttribute(TextAttribute.SIZE, 8);
+        //canvas.setFont(new Font("TimesRoman", Font.BOLD, 5));
+        double alpha = Math.atan2(center2.y - center1.y, center2.x - center1.x);
+        alpha += (isUp ? Math.toDegrees(90) : Math.toDegrees(-90));
+        Point p1 = getNearRadPoint(center1, alpha, arwHead);
+        Point p2 = getNearRadPoint(center2, alpha, arwHead);
+        canvas.drawString(attr.getIterator() , (p1.x + p2.x - num.length() * 4)/2, (p1.y + p2.y)/2);
     }
 
     public void setPartsOfArrow(Graphics2D canvas, double r, Point center1, Point center2, double w)
     {
         double dist = center1.distance(center2);
         double angle = Math.atan2(center2.y - center1.y, center2.x - center1.x);
-
-        canvas.setFont(new Font("TimesRoman", Font.BOLD, 8));
-        String num = (float) Math.round(w * 100) / 100 + "";
-        canvas.drawString(num , (center1.x + center2.x - num.length() * 4)/2, (center1.y + center2.y)/2);
 
         Point p4 = new Point(center1);
         p4.translate((int)((dist-r)*Math.cos(angle)), (int)((dist-r)*Math.sin(angle)));
@@ -207,9 +227,8 @@ public class Canvas extends JComponent
         setTri(p4, pTri1, pTri2);
         canvas.draw(line);
         canvas.fill(tri);
+
     }
-
-
 
     public void printArrow(int src, int dest, Graphics2D canvas)
     {
@@ -223,6 +242,7 @@ public class Canvas extends JComponent
 
         canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
         setPartsOfArrow(canvas, r, center1, center2, edges.get(src).get(dest));
+        drawString(canvas, center1, center2, true, edges.get(src).get(dest));
     }
 
     public boolean updateLocation(int nodeId, Point p)
@@ -246,7 +266,7 @@ public class Canvas extends JComponent
         // a 2D graph
         Graphics2D canvas = (Graphics2D) g;
         canvas.setColor(Color.BLACK);
-
+        canvas.setStroke(new BasicStroke(2));
         //set the border
         HashSet<String> edgesStr = new HashSet<>();
         for (int src: edges.keySet())
