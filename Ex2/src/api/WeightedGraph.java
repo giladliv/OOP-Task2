@@ -11,6 +11,7 @@ public class WeightedGraph implements DirectedWeightedGraph
     private HashMap<Integer,HashMap<Integer,EdgeData>> _edgeHash = new HashMap<>();
     private HashSet<EdgeData> _edgeSet = new HashSet<>();
     private final HashMap<Integer, EdgeData> emptyEdgeMap = new HashMap<>();
+    private int _changes;
 
 
     public WeightedGraph()
@@ -18,6 +19,8 @@ public class WeightedGraph implements DirectedWeightedGraph
         this._nodeHash = new HashMap<>();
         this._edgeHash = new HashMap<>();
         this._edgeSet = new HashSet<>();
+        _changes = 0;
+
     }
 
     public WeightedGraph(DirectedWeightedGraph other)
@@ -38,26 +41,6 @@ public class WeightedGraph implements DirectedWeightedGraph
         }
     }
 
-    public WeightedGraph(List<NodeData> nodes, DirectedWeightedGraph other)
-    {
-        this(other);
-        HashSet<Integer> nodeSet = new HashSet<>();
-        Iterator<NodeData> nodesGraph = this.nodeIter();
-        while (nodesGraph.hasNext())
-        {
-            nodeSet.add(nodesGraph.next().getKey());
-        }
-        for (int i = 0; i < nodes.size(); i++)
-        {
-            nodeSet.remove(nodes.get(i).getKey());
-        }
-
-        for (int key: nodeSet)
-        {
-            this.removeNode(key);
-        }
-    }
-
     @Override
     public NodeData getNode(int key)
     {
@@ -74,11 +57,13 @@ public class WeightedGraph implements DirectedWeightedGraph
     public void addNode(NodeData n)
     {
         _nodeHash.put(n.getKey(), n);
+        _changes++;
     }
 
     public void addNode(int n)
     {
         _nodeHash.put(n, new Node(n));
+        _changes++;
     }
 
     @Override
@@ -91,6 +76,7 @@ public class WeightedGraph implements DirectedWeightedGraph
         }
         _edgeHash.get(src).put(dest, edge);
         _edgeSet.add(edge);
+        _changes++;
     }
 
     @Override
@@ -126,6 +112,7 @@ public class WeightedGraph implements DirectedWeightedGraph
         {
             removeEdge(node, key);
         }
+        _changes++;
         return _nodeHash.remove(key);
     }
 
@@ -142,6 +129,7 @@ public class WeightedGraph implements DirectedWeightedGraph
             _edgeHash.remove(src);
         }
         _edgeSet.remove(edge);
+        _changes++;
         return edge;
     }
 
@@ -160,6 +148,6 @@ public class WeightedGraph implements DirectedWeightedGraph
     @Override
     public int getMC()
     {
-        return 0;
+        return _changes;
     }
 }

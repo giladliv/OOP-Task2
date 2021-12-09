@@ -27,22 +27,24 @@ public class ShowSimulator extends JFrame {
     private HashMap<Integer, JLabel> shpeNode;
     private HashMap<Integer, JLabel> labelNode;
     private Canvas canvas;
+    private DirectedWeightedGraphAlgorithms _algorithm;
     private DirectedWeightedGraph _graph;
 
-    public ShowSimulator(DirectedWeightedGraph graph)
+    public ShowSimulator(DirectedWeightedGraphAlgorithms algorithm)
     {
         frame = new JFrame("HELLO");
         circle = new ImageIcon("pics/circleS.png");
         shpeNode = new HashMap<>();
         labelNode = new HashMap<>();
         panel = new JPanel();
-        _graph = graph;
+        _algorithm = algorithm;
+        _graph = algorithm.copy();
 
         frame.setExtendedState(MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        canvas = new Canvas(frame, graph);
+        canvas = new Canvas(frame, _graph);
 
         button1 = new JButton();
         button1.setText("Click");
@@ -137,8 +139,10 @@ public class ShowSimulator extends JFrame {
 
         if (algorithm.load("data/G1.json"))
         {
-            DirectedWeightedGraph graph = algorithm.getGraph();
-            ShowSimulator dialog = new ShowSimulator(graph);
+            System.out.println(algorithm.shortestPathDist(1, 5));
+            ShowSimulator dialog = new ShowSimulator(algorithm);
+            dialog.canvas.setPath(algorithm.shortestPath(1, 5));
+            //
         }
 
         //System.exit(0);

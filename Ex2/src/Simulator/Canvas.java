@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import javax.swing.*;
 
 public class Canvas extends JComponent
@@ -37,7 +38,22 @@ public class Canvas extends JComponent
         _graph = graph;
         setRatioPoins();
         specialEdges = new HashSet<>();
-        specialEdges.add(1 + "," + 2);
+    }
+
+    public void setPath(List<NodeData> nodes)
+    {
+        specialEdges.clear();
+        for (int i = 0; i < nodes.size() - 1; i++)
+        {
+            specialEdges.add(nodes.get(i) + "," + nodes.get(i + 1));
+        }
+        repaint();
+        //specialEdges.clear();
+    }
+
+    public void removePath()
+    {
+        specialEdges.clear();
     }
 
     private GeoLocation[] getRangeNodes()
@@ -256,6 +272,7 @@ public class Canvas extends JComponent
 
             }
         }
+        removePath();
 
     }
 }

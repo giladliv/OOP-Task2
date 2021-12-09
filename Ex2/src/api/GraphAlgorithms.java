@@ -82,13 +82,15 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
     @Override
     public double shortestPathDist(int src, int dest)
     {
-        return 0;
+        DFS dfsAlgo = new DFS(_g);
+        return dfsAlgo.getShortestPathWeight(src, dest);
     }
 
     @Override
     public List<NodeData> shortestPath(int src, int dest)
     {
-        return null;
+        DFS dfsAlgo = new DFS(_g);
+        return dfsAlgo.getShortestPathNodes(src, dest);
     }
 
     @Override
