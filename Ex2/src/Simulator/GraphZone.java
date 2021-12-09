@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import static java.awt.Frame.MAXIMIZED_BOTH;
 
@@ -50,6 +51,18 @@ public class GraphZone
     {
         canvas.setPath(_algorithm.shortestPath(src, dest));
         return _algorithm.shortestPathDist(src, dest);
+    }
+
+    public void performTSP()
+    {
+        List<NodeData> cities = new ArrayList<>();
+        for (Component cmp: MouseAdapterLabel.nodesPicked)
+        {
+            int nodeId = Integer.parseInt(cmp.getName());
+            cities.add(_algorithm.getGraph().getNode(nodeId));
+        }
+        cities = _algorithm.tsp(cities);
+        canvas.setPath(cities);
     }
 
     public void perfornCenter()
@@ -138,21 +151,21 @@ class MouseAdapterLabel extends MouseAdapter
     private static int startX = -1, startY = -1;
     public static boolean canMove = false;
     public static int needToPick = 2;
-    public static boolean isShortest = false;
     public static ArrayList<Component> nodesPicked = new ArrayList<>();
+    private boolean _isPressed;
 
     public MouseAdapterLabel(Component cmp, Component second, Canvas canvas)
     {
         _cmp = cmp;
         _scndCmp = second;
         _canvas = canvas;
+        _isPressed = false;
     }
 
     public static void resetAll()
     {
         canMove = false;
         needToPick = 0;
-        isShortest = false;
         nodesPicked = new ArrayList<>();
     }
 
@@ -169,12 +182,23 @@ class MouseAdapterLabel extends MouseAdapter
     {
         if (needToPick > 0)
         {
-            if (nodesPicked.size() == needToPick)
+            if (nodesPicked.size() == needToPick && !_isPressed)
                 resetPicked();
 
-            nodesPicked.add(_scndCmp);
-            _scndCmp.setForeground(Color.BLUE);
+            if (_isPressed)
+            {
+                _scndCmp.setForeground(Color.BLACK);
+                nodesPicked.remove(_scndCmp);
+            }
+            else
+            {
+                nodesPicked.add(_scndCmp);
+                _scndCmp.setForeground(Color.BLUE);
+            }
 
+
+
+            _isPressed = !_isPressed;
         }
         if (!canMove)
         {

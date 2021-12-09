@@ -18,9 +18,14 @@ public class FrameAlgo {
     private JFrame frame = new JFrame("GraphAlgorithms");
     private JPanel panel;
     private boolean showCenter;
+    private int mode;
+    public static final int NONE = 0;
+    public static final int SHORTEST_PATH = 1;
+    public static final int TSP = 2;
 
     public FrameAlgo(DirectedWeightedGraphAlgorithms algorithm)
     {
+        mode = NONE;
         _algorithm = algorithm;
         showCenter = false;
         frame.setExtendedState(MAXIMIZED_BOTH);
@@ -47,9 +52,9 @@ public class FrameAlgo {
         center.setBounds(30, 500, 150, 50);
         panel.add(center);
 
-        JButton button5 = new JButton("TSP");
-        button5.setBounds(30, 600, 150, 50);
-        panel.add(button5);
+        JButton tsp = new JButton("TSP");
+        tsp.setBounds(30, 600, 150, 50);
+        panel.add(tsp);
 
         JButton finish = new JButton("Finish Choosing");
         finish.setBounds(30, 700, 150, 50);
@@ -87,9 +92,9 @@ public class FrameAlgo {
                 if (graphZone == null)
                     return;
 
-                JOptionPane.showMessageDialog(frame, "Please Press on the wanted 2 nodes");
+                JOptionPane.showMessageDialog(frame, "Please Press on the wanted 2 nodes,\n if you wish to cancel one of the - just click on it");
                 MouseAdapterLabel.needToPick = 2;
-                MouseAdapterLabel.isShortest = true;
+                mode = SHORTEST_PATH;
                 finish.setVisible(true);
             }
         });
@@ -100,18 +105,30 @@ public class FrameAlgo {
                 if (graphZone == null)
                     return;
 
-                if (MouseAdapterLabel.isShortest)
+                if (mode == SHORTEST_PATH)
                 {
                     if (MouseAdapterLabel.nodesPicked.size() == 2)
                     {
                         int src = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(0).getName());
                         int dest = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(1).getName());
-                        MouseAdapterLabel.isShortest = false;
+                        mode = NONE;
                         finish.setVisible(false);
                         double dist = graphZone.performShortestPath(src, dest);
                         MouseAdapterLabel.resetPicked();
                         MouseAdapterLabel.needToPick = 0;
-                        JOptionPane.showMessageDialog(frame, "The shortest path for\t" + src + " --> " + dest + "  =  " + dist);
+                        JOptionPane.showMessageDialog(frame, "The shortest path for  " + src + " --> " + dest + "  =  " + dist);
+                    }
+                }
+                else if(mode == TSP)
+                {
+                    if (MouseAdapterLabel.nodesPicked.size() > 0)
+                    {
+                        mode = NONE;
+                        finish.setVisible(false);
+                        graphZone.performTSP();
+                        MouseAdapterLabel.resetPicked();
+                        MouseAdapterLabel.needToPick = 0;
+                        //JOptionPane.showMessageDialog(frame, "The shortest path for  ");
                     }
                 }
             }
@@ -147,6 +164,18 @@ public class FrameAlgo {
                     showCenter = false;
                 }
 
+            }
+        });
+        tsp.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (graphZone == null)
+                    return;
+
+                JOptionPane.showMessageDialog(frame, "Please Press on the wanted 2 nodes");
+                MouseAdapterLabel.needToPick = _algorithm.getGraph().nodeSize();
+                mode = TSP;
+                finish.setVisible(true);
             }
         });
 

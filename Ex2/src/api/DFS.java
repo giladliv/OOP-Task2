@@ -367,4 +367,38 @@ public class DFS
         return all;
     }
 
+    public HashMap<Integer, HashMap<List<NodeData>, Double>> pathBest = new HashMap<>();
+
+    public void setPathsList(List<NodeData> nodes, HashSet<Integer> nodesRemain, double w)
+    {
+        if (nodesRemain.isEmpty())
+        {
+            NodeData first = nodes.get(0);
+            if (!pathBest.containsKey(first.getKey()))
+            {
+                pathBest.put(first.getKey(), new HashMap<>());
+            }
+            pathBest.get(first.getKey()).put(nodes, w);
+        }
+
+        NodeData last = nodes.get(nodes.size() - 1);
+        for (int node: _bestRoutes.get(last.getKey()).keySet())
+        {
+            if (node != last.getKey() && nodesRemain.contains(node))
+            {
+                List<NodeData> bestP = new ArrayList<>(_bestRoutes.get(last.getKey()).get(node));
+                bestP.remove(0);
+                List<NodeData> tempList = new ArrayList<>(nodes);
+                HashSet<Integer> tempHash = new HashSet<>(nodesRemain);
+                tempList.addAll(bestP);
+                for (NodeData curr: bestP)
+                {
+                    tempHash.remove(curr.getKey());
+                }
+                setPathsList(tempList, tempHash, w + _bestWeigths.get(last.getKey()).get(node));
+            }
+        }
+
+    }
+
 }
