@@ -252,7 +252,7 @@ public class DFS
         }
     }
 
-    private HashMap<Integer, List<NodeData>> allVersions = new HashMap<>();
+    private HashMap<List<NodeData>, Double> allVersions = new HashMap<>();
     private HashMap<Integer, HashMap<List<NodeData>, Double>> allCircles = new HashMap<>();
 
     public List<NodeData> setCircles(int x, int y)
@@ -304,7 +304,7 @@ public class DFS
         }
     }
 
-    private double getWeight(List<NodeData> nodes)
+    public double getWeight(List<NodeData> nodes)
     {
         double w = 0.0;
         for (int i = 0; i < nodes.size() - 1; i++)
@@ -314,7 +314,57 @@ public class DFS
         return w;
     }
 
+    public List<List<NodeData>> pathsWithCircles(List<NodeData> nodes, int i)
+    {
+        if (i == nodes.size())
+        {
+            return new ArrayList<>();
+        }
 
+        int key = nodes.get(i).getKey();
+        List<List<NodeData>> paths = pathsWithCircles(nodes, i + 1);
+        List<List<NodeData>> all = new ArrayList<>();
 
+        List<NodeData> tempList = new ArrayList<>();
+        tempList.add(nodes.get(i));
+        all.add(tempList);
+
+        for (int j = 0; j < paths.size(); j++)
+        {
+            tempList = new ArrayList<>();
+            tempList.add(nodes.get(i));
+            tempList.addAll(paths.get(j));
+            all.add(tempList);
+        }
+        if (allCircles.containsKey(key))
+        {
+            for (List<NodeData> circles: allCircles.get(key).keySet())
+            {
+                all.add(circles);
+                for (int j = 0; j < paths.size(); j++)
+                {
+                    tempList = new ArrayList<>();
+                    tempList.addAll(circles);
+                    tempList.addAll(paths.get(j));
+                    all.add(tempList);
+                }
+            }
+
+        }
+        return all;
+    }
+
+    public List<List<NodeData>> getAllPathsWithCircles()
+    {
+        List<List<NodeData>> all = new ArrayList<>();
+        for (int src: _bestRoutes.keySet())
+        {
+            for (int dest: _bestRoutes.get(src).keySet())
+            {
+                all.addAll(pathsWithCircles(_bestRoutes.get(src).get(dest), 0));
+            }
+        }
+        return all;
+    }
 
 }

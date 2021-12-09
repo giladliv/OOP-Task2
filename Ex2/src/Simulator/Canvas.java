@@ -22,7 +22,7 @@ public class Canvas extends JComponent
     private Polygon tri = new Polygon();
     private HashMap<Integer, JLabel> nodes;
     private HashMap<Integer, HashMap<Integer, Double>> edges;
-    private static int LEN = ShowSimulator.LEN;
+    private static int LEN = GraphZone.LEN;
     private DirectedWeightedGraph _graph;
     private GeoLocation _ratioAxis;
     private GeoLocation _startPoint;
@@ -31,9 +31,9 @@ public class Canvas extends JComponent
     private HashSet<String> specialEdges;
 
 
-    public Canvas(JFrame frame, DirectedWeightedGraph graph)
+    public Canvas(int x, int y, int w, int h, DirectedWeightedGraph graph)
     {
-        setBounds(frame.getX() + LEN / 2, frame.getY() + LEN / 2, frame.getWidth() - LEN, frame.getHeight() - LEN);
+        setBounds(x + LEN / 2, y + LEN / 2, w - LEN, h - LEN);
         System.out.println();
         nodes = new HashMap<>();
         edges = new HashMap<>();

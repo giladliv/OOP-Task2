@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class ShowSimulator extends JFrame {
-
+public class ShowSimulator extends JFrame
+{
     public static final int LEN = 35;
     private JFrame frame;
     private JPanel panel;
@@ -44,7 +44,7 @@ public class ShowSimulator extends JFrame {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        canvas = new Canvas(frame, _graph);
+        //canvas = new Canvas(frame, _graph);
 
         button1 = new JButton();
         button1.setText("Click");
@@ -149,78 +149,3 @@ public class ShowSimulator extends JFrame {
     }
 
 }
-
-class MouseAdapterLabel extends MouseAdapter
-{
-    private static boolean inDrag = false;
-    private Component _cmp;
-    private Component _scndCmp;
-    private Canvas _canvas;
-    private static int startX = -1, startY = -1;
-    public static boolean canMove = false;
-
-    public MouseAdapterLabel(Component cmp, Component second, Canvas canvas)
-    {
-        _cmp = cmp;
-        _scndCmp = second;
-        _canvas = canvas;
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e)
-    {
-        if (!canMove)
-        {
-            inDrag = false;
-            return;
-        }
-        Point p = MouseInfo.getPointerInfo().getLocation();
-        System.out.println("mousePressed at " + p);
-        startX = p.x - _cmp.getLocation().x;
-        startY = p.y - _cmp.getLocation().y;
-        inDrag = true;
-    }
-
-    /** Called when the mouse has been released. */
-    @Override
-    public void mouseReleased(MouseEvent e)
-    {
-        inDrag = false;
-        if (canMove)
-        {
-            try
-            {
-                int src = Integer.parseInt(_cmp.getName());
-                int dest = Integer.parseInt(_scndCmp.getName());
-                _canvas.updateLocation(src, _cmp.getLocation());
-                _canvas.updateLocation(dest, _scndCmp.getLocation());
-                //printArrow(src, dest);
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
-    }
-
-    // And two methods from MouseMotionListener:
-    @Override
-    public void mouseDragged(MouseEvent e)
-    {
-        if (!canMove)
-        {
-            inDrag = false;
-            return;
-        }
-
-        Point p = MouseInfo.getPointerInfo().getLocation();
-        p.translate(-startX, -startY);
-        if (inDrag)
-        {
-            _cmp.setLocation(p);
-            _scndCmp.setLocation(p);
-            _canvas.repaint();
-        }
-    }
-}
-

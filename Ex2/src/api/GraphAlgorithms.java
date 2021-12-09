@@ -129,6 +129,11 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
                         currBestNode = dest;
                     }
                 }
+                else
+                {
+                    w = Double.MAX_VALUE;
+                    currBestNode = dest;
+                }
             }
 
             if (currBestNode > 0)
@@ -160,7 +165,6 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
         DirectedWeightedGraph graph = new WeightedGraph(_g);
         DFS dfsAlg = new DFS(graph);
         List<NodeData> currNodes = new ArrayList<>();
-        double currW = Double.MAX_VALUE;
         dfsAlg.setAllShortPath(cities);
 
         for (int i = 0; i < cities.size(); i++)
@@ -178,23 +182,52 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
 
         System.out.println();
         dfsAlg.setAllCircles(cities);
+        List<List<NodeData>> allRoutes = dfsAlg.getAllPathsWithCircles();
+        List<List<NodeData>> temp = new ArrayList<>();
+        for (int i = 0; i < allRoutes.size(); i++)
+        {
+            if (hasAllNodes(allRoutes.get(i), cities))
+            {
+                temp.add(allRoutes.get(i));
+            }
+        }
+        allRoutes = temp;
 
-//        for (int i = 0; i < cities.size(); i++)
-//        {
-//            for (int j = 0; j < cities.size(); j++)
-//            {
-//                if (dfsAlg.getShortestPathNodes(i, j).size() == cities.size())
-//                {
-//                    if (currW < dfsAlg.getShortestPathWeight(i, j))
-//                    {
-//                        currW = dfsAlg.getShortestPathWeight(i, j);
-//                        currNodes = dfsAlg.getShortestPathNodes(i, j);
-//                    }
-//                }
-//            }
-//        }
+        double w = Double.MAX_VALUE;
+        int index = -1;
+        for (int i = 0; i < allRoutes.size(); i++)
+        {
+            double currW = dfsAlg.getWeight(allRoutes.get(i));
+            if (currW < w)
+            {
+                w = currW;
+                index = i;
+            }
+        }
 
-        return currNodes;
+        if (index == -1)
+            return new ArrayList<>();
+
+        return allRoutes.get(index);
+    }
+
+    public boolean hasAllNodes(List<NodeData> nodes, List<NodeData> checker)
+    {
+        if (nodes.size() < checker.size())
+            return false;
+
+        HashSet<Integer> setNodes = new HashSet<>();
+        for (int i = 0; i < checker.size(); i++)
+        {
+            setNodes.add(checker.get(i).getKey());
+        }
+
+        for (int i = 0; i < nodes.size(); i++)
+        {
+            setNodes.remove(nodes.get(i).getKey());
+        }
+
+        return setNodes.isEmpty();
     }
 
     @Override
@@ -322,7 +355,7 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
         graph.removeEdge(9,10);
         graph.connect(3, 9, 2);
         graph.connect(9, 3, 1);
-        //graph.connect(4, 9, 0.5);
+        graph.connect(4, 9, 0.5);
 
         //System.out.println(graph.getNode(12) == null);
         //System.out.println(graph.edgeIter(12).hasNext());
