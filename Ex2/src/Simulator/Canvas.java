@@ -1,9 +1,6 @@
 package Simulator;
 
-import api.DirectedWeightedGraph;
-import api.GeoLocation;
-import api.GeoLocationImp;
-import api.NodeData;
+import api.*;
 
 import java.awt.*;
 import java.awt.font.TextAttribute;
@@ -23,7 +20,7 @@ public class Canvas extends JComponent
     private HashMap<Integer, JLabel> nodes;
     private HashMap<Integer, HashMap<Integer, Double>> edges;
     private static int LEN = GraphZone.LEN;
-    private DirectedWeightedGraph _graph;
+    private DirectedWeightedGraphAlgorithms _algorithm;
     private GeoLocation _ratioAxis;
     private GeoLocation _startPoint;
     private static final double arwHead = 6.0;
@@ -31,13 +28,13 @@ public class Canvas extends JComponent
     private HashSet<String> specialEdges;
 
 
-    public Canvas(int x, int y, int w, int h, DirectedWeightedGraph graph)
+    public Canvas(int x, int y, int w, int h, DirectedWeightedGraphAlgorithms algorithm)
     {
         setBounds(x + LEN / 2, y + LEN / 2, w - LEN, h - LEN);
         System.out.println();
         nodes = new HashMap<>();
         edges = new HashMap<>();
-        _graph = graph;
+        _algorithm = algorithm;
         setRatioPoins();
         specialEdges = new HashSet<>();
     }
@@ -58,12 +55,17 @@ public class Canvas extends JComponent
         specialEdges.clear();
     }
 
+    public GeoLocation get_startPoint()
+    {
+        return new GeoLocationImp(_startPoint);
+    }
+
     private GeoLocation[] getRangeNodes()
     {
         double[][] range = new double[][] {{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE},
                 {Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE}};
 
-        Iterator<NodeData> itNode = _graph.nodeIter();
+        Iterator<NodeData> itNode = _algorithm.getGraph().nodeIter();
         while (itNode.hasNext())
         {
             GeoLocation geo = itNode.next().getLocation();
@@ -249,7 +251,7 @@ public class Canvas extends JComponent
     {
         try
         {
-            _graph.getNode(nodeId).setLocation(getGeoFromPoint(p));
+            _algorithm.getGraph().getNode(nodeId).setLocation(getGeoFromPoint(p));
         }
         catch (Exception ex)
         {

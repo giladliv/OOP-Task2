@@ -14,14 +14,15 @@ public class FrameAlgo {
 
     public static int iter = 0;
     private DirectedWeightedGraphAlgorithms _algorithm;
-    private GraphZone graphZone;
-    private JFrame frame = new JFrame("GraphAlgorithms");
+    public GraphZone graphZone;
+    public JFrame frame = new JFrame("GraphAlgorithms");
     private JPanel panel;
     private boolean showCenter;
     private int mode;
     public static final int NONE = 0;
     public static final int SHORTEST_PATH = 1;
     public static final int TSP = 2;
+
 
     public FrameAlgo(DirectedWeightedGraphAlgorithms algorithm)
     {
@@ -37,29 +38,34 @@ public class FrameAlgo {
         frame.add(panel);
 
         JButton load = new JButton("Set Graph");
-        load.setBounds(30, 200, 150, 50);
+        load.setBounds(30, 100, 150, 50);
         panel.add(load);
 
         JButton shortestPath = new JButton("Shortest Path");
-        shortestPath.setBounds(30, 300, 150, 50);
+        shortestPath.setBounds(30, 200, 150, 50);
         panel.add(shortestPath);
 
         JButton isConnected = new JButton("Is Connected");
-        isConnected.setBounds(30, 400, 150, 50);
+        isConnected.setBounds(30, 300, 150, 50);
         panel.add(isConnected);
 
         JButton center = new JButton("Show Center");
-        center.setBounds(30, 500, 150, 50);
+        center.setBounds(30, 400, 150, 50);
         panel.add(center);
 
         JButton tsp = new JButton("TSP");
-        tsp.setBounds(30, 600, 150, 50);
+        tsp.setBounds(30, 500, 150, 50);
         panel.add(tsp);
 
         JButton finish = new JButton("Finish Choosing");
-        finish.setBounds(30, 700, 150, 50);
+        finish.setBounds(30, 600, 150, 50);
         panel.add(finish);
         finish.setVisible(false);
+
+        JButton editGraph = new JButton("Edit Graph");
+        editGraph.setBounds(30, 700, 150, 50);
+        panel.add(editGraph);
+        editGraph.setVisible(false);
 
         JLabel label = new JLabel("GraphAlgorithms", SwingConstants.CENTER);
         label.setBounds(10, 10, 100, 100);
@@ -79,6 +85,7 @@ public class FrameAlgo {
                     {
                         showCenter = false;
                         MouseAdapterLabel.resetAll();
+                        editGraph.setVisible(true);
                     }
                 }
 
@@ -179,6 +186,14 @@ public class FrameAlgo {
             }
         });
 
+        editGraph.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setVisible(false);
+                EditGraph editWin = new EditGraph(FrameAlgo.this, _algorithm);
+            }
+        });
+
         graphZone = null;
 
         //frame.pack();
@@ -192,10 +207,10 @@ public class FrameAlgo {
         {
             if(graphZone != null)
             {
-                graphZone.forget();
+                graphZone.paintAllNodesEdges();
+                return true;
             }
             graphZone = new GraphZone(_algorithm, 200, frame.getY(), frame.getWidth() - 200, frame.getHeight(), panel);
-            System.out.println(_algorithm.center());
             return true;
         }
         return false;

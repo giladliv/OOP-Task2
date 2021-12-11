@@ -26,6 +26,7 @@ public class GraphZone
     private Canvas canvas;
     private DirectedWeightedGraphAlgorithms _algorithm;
     private DirectedWeightedGraph _graph;
+    private int _x, _y, _w, _h;
 
 
     public GraphZone(DirectedWeightedGraphAlgorithms algorithm, int x, int y, int w, int h, JPanel panel)
@@ -37,7 +38,13 @@ public class GraphZone
         _graph = algorithm.copy();
         this.panel = panel;
 
-        canvas = new Canvas(x, y, w, h, _graph);
+        _x = x;
+        _y = y;
+        _w = w;
+        _h = h;
+
+        canvas = new Canvas(_x, _y, _w, _h, _algorithm);
+
 
         this.panel.add(canvas);
 
@@ -94,12 +101,16 @@ public class GraphZone
     {
         this.shpeNode.clear();
         this.labelNode.clear();
-        Iterator<NodeData> itNode = _graph.nodeIter();
+        forget();
+        canvas = new Canvas(_x, _y, _w, _h, _algorithm);
+        panel.add(canvas);
+
+        Iterator<NodeData> itNode = _algorithm.getGraph().nodeIter();
         while (itNode.hasNext())
         {
             makeVer(itNode.next(), LEN);
         }
-        Iterator<EdgeData> itEdge = _graph.edgeIter();
+        Iterator<EdgeData> itEdge = _algorithm.getGraph().edgeIter();
 
         while (itEdge.hasNext())
         {
@@ -108,6 +119,7 @@ public class GraphZone
         }
         canvas.repaint();
     }
+
     public void makeVer(NodeData node, int len)
     {
         Point p = canvas.getPointFromGeo(node.getLocation());
@@ -139,6 +151,11 @@ public class GraphZone
         canvas.add(shape);
     }
 
+    public GeoLocation getStartPoint()
+    {
+        return canvas.get_startPoint();
+    }
+
 
 }
 
@@ -150,7 +167,7 @@ class MouseAdapterLabel extends MouseAdapter
     private Canvas _canvas;
     private static int startX = -1, startY = -1;
     public static boolean canMove = false;
-    public static int needToPick = 2;
+    public static int needToPick = 0;
     public static ArrayList<Component> nodesPicked = new ArrayList<>();
     private boolean _isPressed;
 
