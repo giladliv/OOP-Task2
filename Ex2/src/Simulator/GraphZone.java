@@ -54,9 +54,44 @@ public class GraphZone
         MouseAdapterLabel.canMove = false;
     }
 
+    public void paintAllNodesEdges()
+    {
+        this.shpeNode.clear();
+        this.labelNode.clear();
+        forget();
+        canvas = new Canvas(_x, _y, _w, _h, _algorithm);
+        panel.add(canvas);
+
+        Iterator<NodeData> itNode = _algorithm.getGraph().nodeIter();
+        while (itNode.hasNext())
+        {
+            makeVer(itNode.next(), LEN);
+        }
+        Iterator<EdgeData> itEdge = _algorithm.getGraph().edgeIter();
+
+        while (itEdge.hasNext())
+        {
+            EdgeData edge = itEdge.next();
+            canvas.setArrow(shpeNode.get(edge.getSrc()), shpeNode.get(edge.getDest()), edge.getWeight());
+        }
+        canvas.repaint();
+    }
+
     public double performShortestPath(int src, int dest)
     {
-        canvas.setPath(_algorithm.shortestPath(src, dest));
+        List<NodeData> nodes = _algorithm.shortestPath(src, dest);
+        canvas.setPath(nodes);
+
+        for (int key: shpeNode.keySet())
+        {
+            shpeNode.get(key).setVisible(false);
+            labelNode.get(key).setVisible(false);
+        }
+        for (NodeData node: nodes)
+        {
+            shpeNode.get(node.getKey()).setVisible(true);
+            labelNode.get(node.getKey()).setVisible(true);
+        }
         return _algorithm.shortestPathDist(src, dest);
     }
 
@@ -70,6 +105,18 @@ public class GraphZone
         }
         cities = _algorithm.tsp(cities);
         canvas.setPath(cities);
+
+        for (int key: shpeNode.keySet())
+        {
+            shpeNode.get(key).setVisible(false);
+            labelNode.get(key).setVisible(false);
+        }
+        for (NodeData node: cities)
+        {
+            shpeNode.get(node.getKey()).setVisible(true);
+            labelNode.get(node.getKey()).setVisible(true);
+        }
+        
     }
 
     public void perfornCenter()
@@ -97,28 +144,7 @@ public class GraphZone
         panel.remove(canvas);
     }
 
-    public void paintAllNodesEdges()
-    {
-        this.shpeNode.clear();
-        this.labelNode.clear();
-        forget();
-        canvas = new Canvas(_x, _y, _w, _h, _algorithm);
-        panel.add(canvas);
 
-        Iterator<NodeData> itNode = _algorithm.getGraph().nodeIter();
-        while (itNode.hasNext())
-        {
-            makeVer(itNode.next(), LEN);
-        }
-        Iterator<EdgeData> itEdge = _algorithm.getGraph().edgeIter();
-
-        while (itEdge.hasNext())
-        {
-            EdgeData edge = itEdge.next();
-            canvas.setArrow(shpeNode.get(edge.getSrc()), shpeNode.get(edge.getDest()), edge.getWeight());
-        }
-        canvas.repaint();
-    }
 
     public void makeVer(NodeData node, int len)
     {

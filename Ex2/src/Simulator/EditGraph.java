@@ -5,6 +5,7 @@ import api.GraphAlgorithms;
 import api.Node;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -59,12 +60,12 @@ public class EditGraph
         deleteNode.setBounds(button2.getX() + button2.getWidth() + 10, button2.getY(), button2.getWidth(), button2.getHeight());
         panel.add(deleteNode);
 
-        JButton button4 = new JButton("Add Edge");
-        button4.setBounds(deleteNode.getX() + deleteNode.getWidth() + 10, deleteNode.getY(), deleteNode.getWidth(), deleteNode.getHeight());
-        panel.add(button4);
+        JButton addEdge = new JButton("Add Edge");
+        addEdge.setBounds(deleteNode.getX() + deleteNode.getWidth() + 10, deleteNode.getY(), deleteNode.getWidth(), deleteNode.getHeight());
+        panel.add(addEdge);
 
         JButton button5 = new JButton("Delete Edge");
-        button5.setBounds(button4.getX() + button4.getWidth() + 10, button4.getY(), button4.getWidth(), button4.getHeight());
+        button5.setBounds(addEdge.getX() + addEdge.getWidth() + 10, addEdge.getY(), addEdge.getWidth(), addEdge.getHeight());
         panel.add(button5);
 
         JButton button6 = new JButton("Save Graph");
@@ -75,6 +76,7 @@ public class EditGraph
         finish.setBounds(button6.getX() + button6.getWidth() + 10, button6.getY(), button6.getWidth(), button6.getHeight());
         panel.add(finish);
         finish.setVisible(false);
+        finish.setBackground(Color.RED);
 
         button1.addActionListener(new ActionListener() {
             @Override
@@ -130,7 +132,7 @@ public class EditGraph
         });
 
         //add edge
-        button4.addActionListener(new ActionListener() {
+        addEdge.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int src = 0;
@@ -157,8 +159,8 @@ public class EditGraph
         button6.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GetFileName form = new GetFileName();
-                System.out.println(form.textField1.getText());
+                //GetFileName form = new GetFileName();
+                //System.out.println(form.textField1.getText());
             }
         });
 

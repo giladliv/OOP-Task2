@@ -8,13 +8,23 @@ public class Edge implements EdgeData, Comparable<Edge>
     private int dest;
     private double weight;
     private int tag =0;
+    private String info;
 
+    /**
+     * c'tor
+     * @param src source node of the edge
+     * @param dest destination node of an edge
+     * @param weight the weight of the edge
+     */
     public Edge(int src, int dest, double weight)
     {
-    this.src = src;
-    this.dest = dest;
-    this.weight = weight;
+        this.src = src;
+        this.dest = dest;
+        this.weight = weight;
+        info = "";
     }
+
+    //Geters + Setters
 
     @Override
     public int getSrc()
@@ -36,17 +46,19 @@ public class Edge implements EdgeData, Comparable<Edge>
 
     @Override
     public String getInfo() {
-        return null;
+        return info;
     }
 
     @Override
-    public void setInfo(String s) {
-
+    public void setInfo(String s)
+    {
+        info = s;
     }
 
     @Override
-    public int getTag() {
-        return 0;
+    public int getTag()
+    {
+        return tag;
     }
 
     @Override
@@ -54,6 +66,7 @@ public class Edge implements EdgeData, Comparable<Edge>
     {
     this.tag = t;
     }
+
 
     @Override
     public int compareTo(Edge o)
@@ -64,7 +77,8 @@ public class Edge implements EdgeData, Comparable<Edge>
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return src + " --> " + dest + " : " + weight;
     }
 }

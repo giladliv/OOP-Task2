@@ -1,9 +1,7 @@
 package api;
 import com.google.gson.Gson;
 
-import java.io.Reader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -60,7 +58,7 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
             while (itEdge.hasNext())
             {
                 NodeData dstNode = tempGraph.getNode(itEdge.next().getDest());
-                if (dstNode.getTag() == Node.WHITE)
+                if (dstNode != null && dstNode.getTag() == Node.WHITE)
                 {
                     dstNode.setTag(Node.GRAY);
                     nodesQ.add(dstNode);
@@ -82,21 +80,21 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
     @Override
     public double shortestPathDist(int src, int dest)
     {
-        DFS dfsAlgo = new DFS(_g);
-        return dfsAlgo.getShortestPathWeight(src, dest);
+        AlgoHelper algoHelperAlgo = new AlgoHelper(_g);
+        return algoHelperAlgo.getShortestPathWeight(src, dest);
     }
 
     @Override
     public List<NodeData> shortestPath(int src, int dest)
     {
-        DFS dfsAlgo = new DFS(_g);
-        return dfsAlgo.getShortestPathNodes(src, dest);
+        AlgoHelper algoHelperAlgo = new AlgoHelper(_g);
+        return algoHelperAlgo.getShortestPathNodes(src, dest);
     }
 
     @Override
     public NodeData center()
     {
-        DFS graphAlgo = new DFS(_g);
+        AlgoHelper graphAlgo = new AlgoHelper(_g);
 
         List<NodeData> nodes = new ArrayList<>();
         Iterator<NodeData> itNode = _g.nodeIter();
@@ -163,9 +161,9 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
     public List<NodeData> tsp(List<NodeData> cities)
     {
         DirectedWeightedGraph graph = new WeightedGraph(_g);
-        DFS dfsAlg = new DFS(graph);
+        AlgoHelper algoHelperAlg = new AlgoHelper(graph);
         List<NodeData> currNodes = new ArrayList<>();
-        dfsAlg.setAllShortPath(cities);
+        algoHelperAlg.setAllShortPath(cities);
         HashSet<Integer> remained = new HashSet<>();
 
         for (int i = 0; i < cities.size(); i++)
@@ -176,8 +174,8 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
             for (int j = 0; j < cities.size(); j++)
             {
                 int y = cities.get(j).getKey();
-                dfsAlg.DFSvisit(x, y);
-                List<NodeData> listNodes = dfsAlg.getShortestPathNodes(x, y);
+                algoHelperAlg.DFSvisit(x, y);
+                List<NodeData> listNodes = algoHelperAlg.getShortestPathNodes(x, y);
                 //if (!listNodes.isEmpty())
                     //System.out.println(x + " --> " + y + ":\t" + Arrays.toString(listNodes.toArray()));
             }
@@ -186,7 +184,7 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
         {
             currNodes.add(_g.getNode(cities.get(i).getKey()));
             remained.remove(cities.get(i).getKey());
-            dfsAlg.setPathsList(currNodes, remained, 0);
+            algoHelperAlg.setPathsList(currNodes, remained, 0);
 
             currNodes = new ArrayList<>();
             remained.add(cities.get(i).getKey());
@@ -194,12 +192,12 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
 
         double w = Double.MAX_VALUE;
         currNodes = new ArrayList<>();
-        for (int src: dfsAlg.pathBest.keySet())
+        for (int src: algoHelperAlg.pathBest.keySet())
         {
-            for (List<NodeData> nodes: dfsAlg.pathBest.get(src).keySet())
+            for (List<NodeData> nodes: algoHelperAlg.pathBest.get(src).keySet())
             {
                 //System.out.println(nodes + " -- > " + dfsAlg.pathBest.get(src).get(nodes));
-                double currWeight = dfsAlg.pathBest.get(src).get(nodes);
+                double currWeight = algoHelperAlg.pathBest.get(src).get(nodes);
                 if (currWeight < w)
                 {
                     w = currWeight;
@@ -336,8 +334,8 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
 
         DirectedWeightedGraphAlgorithms algo = new GraphAlgorithms();
         algo.init(graph);
-        DFS dfs = new DFS(graph);
-        double low = dfs.DFSvisit(1, 5);
+        AlgoHelper algoHelper = new AlgoHelper(graph);
+        double low = algoHelper.DFSvisit(1, 5);
         System.out.println(low);
         System.out.println("the center is " + algo.center());
         ////used to be at the dfs:
@@ -397,7 +395,7 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
         hashSet.add(temp);
         System.out.println(hashSet.contains(temp));
 
-        DFS tempDFS = new DFS(graph);
+        AlgoHelper tempAlgoHelper = new AlgoHelper(graph);
         algo.save("out/Try.json");
     }
 }

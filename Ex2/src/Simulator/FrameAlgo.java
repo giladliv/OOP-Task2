@@ -4,6 +4,7 @@ import api.DirectedWeightedGraphAlgorithms;
 import api.GraphAlgorithms;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -61,6 +62,7 @@ public class FrameAlgo {
         finish.setBounds(30, 600, 150, 50);
         panel.add(finish);
         finish.setVisible(false);
+        finish.setBackground(Color.RED);
 
         JButton editGraph = new JButton("Edit Graph");
         editGraph.setBounds(30, 700, 150, 50);
@@ -99,6 +101,7 @@ public class FrameAlgo {
                 if (graphZone == null)
                     return;
 
+                graphZone.paintAllNodesEdges();
                 JOptionPane.showMessageDialog(frame, "Please Press on the wanted 2 nodes,\n if you wish to cancel one of the - just click on it");
                 MouseAdapterLabel.needToPick = 2;
                 mode = SHORTEST_PATH;
@@ -147,6 +150,7 @@ public class FrameAlgo {
                 if (graphZone == null)
                     return;
 
+                graphZone.paintAllNodesEdges();
                 String con = _algorithm.isConnected() ? "" : "NOT ";
                 JOptionPane.showMessageDialog(frame, "The cuurent graph is " + con + "Connected");
             }
@@ -157,6 +161,8 @@ public class FrameAlgo {
 
                 if (graphZone == null)
                     return;
+
+                graphZone.paintAllNodesEdges();
 
                 if (!showCenter)
                 {
@@ -179,7 +185,8 @@ public class FrameAlgo {
                 if (graphZone == null)
                     return;
 
-                JOptionPane.showMessageDialog(frame, "Please Press on the wanted 2 nodes");
+                graphZone.paintAllNodesEdges();
+                JOptionPane.showMessageDialog(frame,"Please Press on the wanted nodes\nAfter That please press on finished");
                 MouseAdapterLabel.needToPick = _algorithm.getGraph().nodeSize();
                 mode = TSP;
                 finish.setVisible(true);

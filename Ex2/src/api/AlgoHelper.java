@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class DFS
+public class AlgoHelper
 {
     private DirectedWeightedGraph _g;
     private HashMap<Integer, Integer> _parent;
@@ -17,8 +17,7 @@ public class DFS
     private HashMap<Integer, HashMap<Integer, List<NodeData>>> _bestRoutes;
     private HashMap<Integer, HashMap<Integer, Double>> _bestWeigths;
 
-
-    public DFS(DirectedWeightedGraph g)
+    public AlgoHelper(DirectedWeightedGraph g)
     {
         _g = g;
         _time = 0;
@@ -44,49 +43,6 @@ public class DFS
         _time = 0;
         _bestRoutes.clear();
         _bestWeigths.clear();
-    }
-
-
-    public void mainfunc()
-    {
-        Iterator<NodeData> it = _g.nodeIter();
-        while (it.hasNext())
-        {
-            NodeData node = it.next();
-            node.setTag(Node.WHITE);
-        }
-        _time = 0;
-
-        it = _g.nodeIter();
-        while (it.hasNext())
-        {
-            NodeData node = it.next();
-            if (node.getTag() == Node.WHITE)
-            {
-                DFSvisit(node);
-            }
-        }
-    }
-
-    public void DFSvisit(NodeData node)
-    {
-        node.setTag(Node.GRAY);
-        _time = _time +1;
-        _d.put(node.getKey(), _time);
-        Iterator<EdgeData> it = _g.edgeIter(node.getKey());
-        while (it.hasNext())
-        {
-            EdgeData edge = it.next();
-            int dest = edge.getDest();
-            NodeData dstNode = _g.getNode(dest);
-            if (dstNode.getTag()== Node.WHITE){
-                _parent.put(dest, node.getKey());
-                DFSvisit(dstNode);
-            }
-        }
-        node.setTag(Node.BLACK);
-        _time += 1;
-        _f.put(node.getKey(), _time);
     }
 
     private void setRoutePair(NodeData node, int lastNode)
@@ -243,128 +199,10 @@ public class DFS
                     int x = nodes.get(j).getKey();
                     int y = nodes.get(i).getKey();
                     this.DFSvisit(x, y);
-//                    System.out.println(x + " --> " + y
-//                            + ":\t" + Arrays.toString(dfsAlg.getShortestPathNodes(x, y).toArray()));
                 }
-                //System.out.println();
                 this.removeAllMaxDouble();
             }
         }
-    }
-
-    private HashMap<List<NodeData>, Double> allVersions = new HashMap<>();
-    private HashMap<Integer, HashMap<List<NodeData>, Double>> allCircles = new HashMap<>();
-
-    public List<NodeData> setCircles(int x, int y)
-    {
-        List<NodeData> nodes = new ArrayList<>();
-        if (_bestWeigths.containsKey(x) && _bestWeigths.get(x).containsKey(y) && _bestWeigths.get(x).get(y) != Double.MAX_VALUE)
-        {
-            if (_bestWeigths.containsKey(y) && _bestWeigths.get(y).containsKey(x) && _bestWeigths.get(y).get(x) != Double.MAX_VALUE)
-            {
-                List<NodeData> nodeDataList = _bestRoutes.get(x).get(y);
-                nodes.addAll(nodeDataList);
-                nodes.addAll(_bestRoutes.get(y).get(x));
-                nodes.remove(nodeDataList.size());
-            }
-        }
-        return nodes;
-    }
-
-    public void setAllCircles(List<NodeData> nodes)
-    {
-        for (int i = 0; i < nodes.size(); i++)
-        {
-            for (int j = 0; j < nodes.size(); j++)
-            {
-                int x = nodes.get(i).getKey();
-                int y = nodes.get(j).getKey();
-
-                if (x == y)
-                    continue;
-                if (x == 3)
-                {
-                    int c = 0;
-                }
-                List<NodeData> listNodes = setCircles(x, y);
-
-                if (!listNodes.isEmpty())
-                {
-                    if (!allCircles.containsKey(x))
-                    {
-                        allCircles.put(x, new HashMap<>());
-                    }
-
-                    allCircles.get(x).put(listNodes, getWeight(listNodes));
-                }
-
-                if (!listNodes.isEmpty())
-                    System.out.println(x + " --> " + y + " --> " + x + ":\t" + Arrays.toString(listNodes.toArray()));
-            }
-        }
-    }
-
-    public double getWeight(List<NodeData> nodes)
-    {
-        double w = 0.0;
-        for (int i = 0; i < nodes.size() - 1; i++)
-        {
-            w += getShortestPathWeight(nodes.get(i).getKey(), nodes.get(i + 1).getKey());
-        }
-        return w;
-    }
-
-    public List<List<NodeData>> pathsWithCircles(List<NodeData> nodes, int i)
-    {
-        if (i == nodes.size())
-        {
-            return new ArrayList<>();
-        }
-
-        int key = nodes.get(i).getKey();
-        List<List<NodeData>> paths = pathsWithCircles(nodes, i + 1);
-        List<List<NodeData>> all = new ArrayList<>();
-
-        List<NodeData> tempList = new ArrayList<>();
-        tempList.add(nodes.get(i));
-        all.add(tempList);
-
-        for (int j = 0; j < paths.size(); j++)
-        {
-            tempList = new ArrayList<>();
-            tempList.add(nodes.get(i));
-            tempList.addAll(paths.get(j));
-            all.add(tempList);
-        }
-        if (allCircles.containsKey(key))
-        {
-            for (List<NodeData> circles: allCircles.get(key).keySet())
-            {
-                all.add(circles);
-                for (int j = 0; j < paths.size(); j++)
-                {
-                    tempList = new ArrayList<>();
-                    tempList.addAll(circles);
-                    tempList.addAll(paths.get(j));
-                    all.add(tempList);
-                }
-            }
-
-        }
-        return all;
-    }
-
-    public List<List<NodeData>> getAllPathsWithCircles()
-    {
-        List<List<NodeData>> all = new ArrayList<>();
-        for (int src: _bestRoutes.keySet())
-        {
-            for (int dest: _bestRoutes.get(src).keySet())
-            {
-                all.addAll(pathsWithCircles(_bestRoutes.get(src).get(dest), 0));
-            }
-        }
-        return all;
     }
 
     public HashMap<Integer, HashMap<List<NodeData>, Double>> pathBest = new HashMap<>();

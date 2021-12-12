@@ -178,8 +178,11 @@ public class Canvas extends JComponent
         center1.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         center2.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
-        setPartsOfArrow(canvas, radiusCut, center1, center2, edges.get(src).get(dest));
-        drawString(canvas, center1, center2, false, edges.get(src).get(dest));
+        if (specialEdges.isEmpty() || (!specialEdges.isEmpty() && canvas.getColor() == Color.BLUE))
+        {
+            setPartsOfArrow(canvas, radiusCut, center1, center2, edges.get(src).get(dest));
+            drawString(canvas, center1, center2, false, edges.get(src).get(dest));
+        }
 
 
         beta = angle - Math.toRadians(90);
@@ -188,13 +191,35 @@ public class Canvas extends JComponent
         center1.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         center2.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         canvas.setColor(specialEdges.contains(dest + "," + src) ? Color.BLUE : Color.BLACK);
-        setPartsOfArrow(canvas, radiusCut, center2, center1, edges.get(dest).get(src));
-        drawString(canvas, center1, center2, true, edges.get(dest).get(src));
+
+        if (specialEdges.isEmpty() || (!specialEdges.isEmpty() && canvas.getColor() == Color.BLUE))
+        {
+            setPartsOfArrow(canvas, radiusCut, center2, center1, edges.get(dest).get(src));
+            drawString(canvas, center1, center2, true, edges.get(dest).get(src));
+        }
+    }
+
+    public void printArrow(int src, int dest, Graphics2D canvas)
+    {
+        JLabel node1 = nodes.get(src);
+        JLabel node2 = nodes.get(dest);
+        Point center1 = node1.getLocation();
+        int r = LEN / 2;
+        center1.translate(r, r);
+        Point center2 = node2.getLocation();
+        center2.translate(r, r);
+
+        canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
+        if (specialEdges.isEmpty() || (!specialEdges.isEmpty() && canvas.getColor() == Color.BLUE))
+        {
+            setPartsOfArrow(canvas, r, center1, center2, edges.get(src).get(dest));
+            drawString(canvas, center1, center2, true, edges.get(src).get(dest));
+        }
+
     }
 
     public void drawString(Graphics2D canvas, Point center1, Point center2, boolean isUp, double w)
     {
-
         String num = (float) Math.round(w * 100) / 100 + "";
         AttributedString attr = new AttributedString(num);
         attr.addAttribute(TextAttribute.BACKGROUND, Color.white);
@@ -232,20 +257,7 @@ public class Canvas extends JComponent
 
     }
 
-    public void printArrow(int src, int dest, Graphics2D canvas)
-    {
-        JLabel node1 = nodes.get(src);
-        JLabel node2 = nodes.get(dest);
-        Point center1 = node1.getLocation();
-        int r = LEN / 2;
-        center1.translate(r, r);
-        Point center2 = node2.getLocation();
-        center2.translate(r, r);
 
-        canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
-        setPartsOfArrow(canvas, r, center1, center2, edges.get(src).get(dest));
-        drawString(canvas, center1, center2, true, edges.get(src).get(dest));
-    }
 
     public boolean updateLocation(int nodeId, Point p)
     {

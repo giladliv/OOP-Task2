@@ -7,19 +7,39 @@ public class GeoLocationImp implements GeoLocation
     private double _x, _y, _z;
     private boolean _isValid;
 
+    /**
+     * copy c'tor
+     * @param other
+     */
     public GeoLocationImp(GeoLocation other)
     {
         this(other.x(), other.y(), other.z());
     }
 
+    /**
+     * c'tor will make 0,0,0
+     */
     public GeoLocationImp()
     {
         this(0,0,0);
     }
+
+    /**
+     * c'tor will create point by x,y alone
+     * @param x
+     * @param y
+     */
     public GeoLocationImp(double x, double y)
     {
         this(x,y,0);
     }
+
+    /**
+     * c'tor will create 3d point by coordinates
+     * @param x
+     * @param y
+     * @param z
+     */
     public GeoLocationImp(double x, double y, double z)
     {
         _x = x;
@@ -28,6 +48,10 @@ public class GeoLocationImp implements GeoLocation
         _isValid = true;
     }
 
+    /**
+     * c'tor by string of points - splited by ','
+     * @param pos
+     */
     public GeoLocationImp(String pos)
     {
         this();
@@ -49,6 +73,8 @@ public class GeoLocationImp implements GeoLocation
         }
     }
 
+    //Getters
+
     @Override
     public double x()
     {
@@ -67,6 +93,11 @@ public class GeoLocationImp implements GeoLocation
         return _z;
     }
 
+    /**
+     * computes the distane of 3d point
+     * @param g - other point in 3d
+     * @return
+     */
     @Override
     public double distance(GeoLocation g)
     {
