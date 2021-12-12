@@ -178,8 +178,8 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
                 int y = cities.get(j).getKey();
                 dfsAlg.DFSvisit(x, y);
                 List<NodeData> listNodes = dfsAlg.getShortestPathNodes(x, y);
-                if (!listNodes.isEmpty())
-                    System.out.println(x + " --> " + y + ":\t" + Arrays.toString(listNodes.toArray()));
+                //if (!listNodes.isEmpty())
+                    //System.out.println(x + " --> " + y + ":\t" + Arrays.toString(listNodes.toArray()));
             }
         }
         for (int i = 0; i < cities.size(); i++)
@@ -198,7 +198,7 @@ public class GraphAlgorithms implements DirectedWeightedGraphAlgorithms
         {
             for (List<NodeData> nodes: dfsAlg.pathBest.get(src).keySet())
             {
-                System.out.println(nodes + " -- > " + dfsAlg.pathBest.get(src).get(nodes));
+                //System.out.println(nodes + " -- > " + dfsAlg.pathBest.get(src).get(nodes));
                 double currWeight = dfsAlg.pathBest.get(src).get(nodes);
                 if (currWeight < w)
                 {
