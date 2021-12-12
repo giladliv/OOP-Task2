@@ -55,12 +55,12 @@ public class EditGraph
         button2.setBounds(button1.getX() + button1.getWidth() + 10, button1.getY(), button1.getWidth(), button1.getHeight());
         panel.add(button2);
 
-        JButton button3 = new JButton("Delete Node");
-        button3.setBounds(button2.getX() + button2.getWidth() + 10, button2.getY(), button2.getWidth(), button2.getHeight());
-        panel.add(button3);
+        JButton deleteNode = new JButton("Delete Node");
+        deleteNode.setBounds(button2.getX() + button2.getWidth() + 10, button2.getY(), button2.getWidth(), button2.getHeight());
+        panel.add(deleteNode);
 
         JButton button4 = new JButton("Add Edge");
-        button4.setBounds(button3.getX() + button3.getWidth() + 10, button3.getY(), button3.getWidth(), button3.getHeight());
+        button4.setBounds(deleteNode.getX() + deleteNode.getWidth() + 10, deleteNode.getY(), deleteNode.getWidth(), deleteNode.getHeight());
         panel.add(button4);
 
         JButton button5 = new JButton("Delete Edge");
@@ -70,6 +70,11 @@ public class EditGraph
         JButton button6 = new JButton("Save Graph");
         button6.setBounds(button5.getX() + button5.getWidth() + 10, button5.getY(), button5.getWidth(), button5.getHeight());
         panel.add(button6);
+
+        JButton finish = new JButton("Finish Choosing");
+        finish.setBounds(button6.getX() + button6.getWidth() + 10, button6.getY(), button6.getWidth(), button6.getHeight());
+        panel.add(finish);
+        finish.setVisible(false);
 
         button1.addActionListener(new ActionListener() {
             @Override
@@ -87,7 +92,6 @@ public class EditGraph
                     button1.setText("Move Node");
                 }
             }
-
         });
 
         frame.addWindowListener(new WindowAdapter() {
@@ -113,12 +117,15 @@ public class EditGraph
         });
 
         // delete node
-        button3.addActionListener(new ActionListener() {
+        deleteNode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e){
-                int key=0;
-                _algorithm.getGraph().removeNode(key);
-                graphZone.paintAllNodesEdges();
+                MouseAdapterLabel.needToPick = 1;
+                if (mode == Modes.MOVE_NODE)
+                    button1.doClick();
+
+                mode = Modes.DELETE_NODE;
+                finish.setVisible(true);
             }
         });
 
@@ -138,10 +145,12 @@ public class EditGraph
         button5.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int src=0;
-                int dest=1;
-                _algorithm.getGraph().removeEdge(src, dest);
-                graphZone.paintAllNodesEdges();
+                MouseAdapterLabel.needToPick = 2;
+                if (mode == Modes.MOVE_NODE)
+                    button1.doClick();
+
+                mode = Modes.DELETE_EDGE;
+                finish.setVisible(true);
             }
         });
             // save graph
@@ -150,6 +159,59 @@ public class EditGraph
             public void actionPerformed(ActionEvent e) {
                 GetFileName form = new GetFileName();
                 System.out.println(form.textField1.getText());
+            }
+        });
+
+        finish.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (mode == Modes.DELETE_NODE)
+                {
+                    if (MouseAdapterLabel.nodesPicked.size() == 1)
+                    {
+                        int key = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(0).getName());
+                        mode = Modes.NONE;
+                        finish.setVisible(false);
+                        if (_algorithm.getGraph().removeNode(key) != null)
+                        {
+                            graphZone.paintAllNodesEdges();
+                            JOptionPane.showMessageDialog(frame, "Node removed successfully");
+                        }
+                        else
+                        {
+                            JOptionPane.showMessageDialog(frame, "Failed to removed node");
+                        }
+                        MouseAdapterLabel.resetPicked();
+                        MouseAdapterLabel.needToPick = 0;
+
+                    }
+                }
+                else if (mode == Modes.DELETE_EDGE)
+                {
+                    if (MouseAdapterLabel.nodesPicked.size() == 2)
+                    {
+                        int src = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(0).getName());
+                        int dest = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(1).getName());
+
+                        mode = Modes.NONE;
+                        finish.setVisible(false);
+
+                        if (_algorithm.getGraph().removeEdge(src, dest) != null)
+                        {
+                            graphZone.paintAllNodesEdges();
+                            String message = "Edge (%d, %d) removed successfully".formatted(src, dest);
+                            JOptionPane.showMessageDialog(frame, message);
+                        }
+                        else
+                        {
+                            String message = "Failed to remove Edge (%d, %d)".formatted(src, dest);
+                            JOptionPane.showMessageDialog(frame, message);
+                        }
+                        MouseAdapterLabel.resetPicked();
+                        MouseAdapterLabel.needToPick = 0;
+
+                    }
+                }
             }
         });
 
