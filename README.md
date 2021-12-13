@@ -2,8 +2,9 @@
 This is the task 2 of the OOP course, and it is about Directed Weighted Graph
 we have a simulator that we build for ourselfves
 
-### UML
+## UML
 first we show you the UML of the Project
+![umlDig](/Ex2/pics/UML.png)
 
 ## Simulator
 Now it's the time for the simulator operating, to do so we first show you how the simulator is shown
@@ -84,4 +85,9 @@ Example of the buttons with finish choosing:
 ![editB](/Ex2/pics/EditButtons.png)
 
 
+
+## Run Time Analyzing
+Here are the run times:
+
+![rtimes](/Ex2/pics/RunTimes.jpg)
 
