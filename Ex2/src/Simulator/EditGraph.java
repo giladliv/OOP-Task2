@@ -1,8 +1,5 @@
 package Simulator;
-import api.DirectedWeightedGraphAlgorithms;
-import api.Edge;
-import api.GraphAlgorithms;
-import api.Node;
+import api.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +19,7 @@ public class EditGraph
     private JPanel panel;
     private GraphZone graphZone;
     private FrameAlgo oldFame;
+    private DirectedWeightedGraph _currGraph;
     private static Modes mode = Modes.NONE;
     private static enum Modes
     {
@@ -38,6 +36,7 @@ public class EditGraph
     {
         oldFame = old;
         _algorithm = algorithm;
+        _currGraph = _algorithm.copy();
         frame = new JFrame("EditGraph");
 
         frame.setExtendedState(MAXIMIZED_BOTH);
@@ -48,16 +47,16 @@ public class EditGraph
         panel.setLayout(null);
         frame.add(panel);
 
-        JButton button1 = new JButton("Move Node");
-        button1.setBounds(10, 10, 130, 50);
-        panel.add(button1);
+        JButton moveNode = new JButton("Move Node");
+        moveNode.setBounds(10, 10, 130, 50);
+        panel.add(moveNode);
 
-        JButton button2 = new JButton("Add Node");
-        button2.setBounds(button1.getX() + button1.getWidth() + 10, button1.getY(), button1.getWidth(), button1.getHeight());
-        panel.add(button2);
+        JButton addNode = new JButton("Add Node");
+        addNode.setBounds(moveNode.getX() + moveNode.getWidth() + 10, moveNode.getY(), moveNode.getWidth(), moveNode.getHeight());
+        panel.add(addNode);
 
         JButton deleteNode = new JButton("Delete Node");
-        deleteNode.setBounds(button2.getX() + button2.getWidth() + 10, button2.getY(), button2.getWidth(), button2.getHeight());
+        deleteNode.setBounds(addNode.getX() + addNode.getWidth() + 10, addNode.getY(), addNode.getWidth(), addNode.getHeight());
         panel.add(deleteNode);
 
         JButton addEdge = new JButton("Add Edge");
@@ -78,43 +77,56 @@ public class EditGraph
         finish.setVisible(false);
         finish.setBackground(Color.RED);
 
-        button1.addActionListener(new ActionListener() {
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                if (_currGraph.getMC() != _algorithm.getGraph().getMC())
+                {
+                    int answer = JOptionPane.showConfirmDialog(frame,
+                            "Some files have changes and not been saved, do you want to save them?",
+                            "save changes",
+                            JOptionPane.YES_NO_OPTION);
+                    if (answer == 0)
+                    {
+                        button6.doClick();
+                    }
+                    else
+                    {
+                        _algorithm.init(_currGraph);
+                        oldFame.frame.setVisible(true);
+                    }
+                }
+                MouseAdapterLabel.canMove = false;
+                oldFame.graphZone.paintAllNodesEdges();
+
+            }
+        });
+
+        moveNode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (mode == Modes.NONE)
                 {
                     MouseAdapterLabel.canMove = true;
                     mode = Modes.MOVE_NODE;
-                    button1.setText("Stop Move");
+                    moveNode.setText("Stop Move");
                 }
                 else if (mode == Modes.MOVE_NODE)
                 {
                     MouseAdapterLabel.canMove = false;
                     mode = Modes.NONE;
-                    button1.setText("Move Node");
+                    moveNode.setText("Move Node");
                 }
             }
         });
 
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                oldFame.frame.setVisible(true);
-                oldFame.graphZone.paintAllNodesEdges();
-                super.windowClosing(e);
-            }
-        });
-
         // add node
-        button2.addActionListener(new ActionListener() {
+        addNode.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int key = 0;
-                Node myNode = new Node(_algorithm.getGraph().nodeSize());
-                myNode.setLocation(graphZone.getStartPoint());
-                _algorithm.getGraph().addNode(myNode);
-                graphZone.paintAllNodesEdges();
-                //graphZone.paintAllNodesEdges();
+                AddNodeFrame nodeFrame = new AddNodeFrame(frame, _algorithm, graphZone);
+                frame.setVisible(false);
             }
         });
 
@@ -124,7 +136,7 @@ public class EditGraph
             public void actionPerformed(ActionEvent e){
                 MouseAdapterLabel.needToPick = 1;
                 if (mode == Modes.MOVE_NODE)
-                    button1.doClick();
+                    moveNode.doClick();
 
                 mode = Modes.DELETE_NODE;
                 finish.setVisible(true);
@@ -135,11 +147,7 @@ public class EditGraph
         addEdge.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int src = 0;
-                int dest = 1;
-                double w = 0;
-                _algorithm.getGraph().connect(src, dest, w);
-                graphZone.paintAllNodesEdges();
+                AddEdgeFrame addEdgeFrame = new AddEdgeFrame(frame, _algorithm, graphZone);
             }
         });
 
@@ -149,18 +157,25 @@ public class EditGraph
             public void actionPerformed(ActionEvent e) {
                 MouseAdapterLabel.needToPick = 2;
                 if (mode == Modes.MOVE_NODE)
-                    button1.doClick();
+                    moveNode.doClick();
 
                 mode = Modes.DELETE_EDGE;
                 finish.setVisible(true);
             }
         });
-            // save graph
+
+        // save graph
         button6.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                //GetFileName form = new GetFileName();
-                //System.out.println(form.textField1.getText());
+            public void actionPerformed(ActionEvent e)
+            {
+                if (_currGraph.getMC() == _algorithm.getGraph().getMC())
+                    return;
+
+                SaveFileForm saveFileForm = new SaveFileForm(EditGraph.this, frame, _algorithm);
+                frame.setVisible(false);
+
+                //saveFileForm
             }
         });
 
@@ -221,10 +236,8 @@ public class EditGraph
         frame.repaint();
     }
 
-    public static void main(String[] args)
+    public void setGraphCurr()
     {
-        DirectedWeightedGraphAlgorithms algo = new GraphAlgorithms();
-        algo.load("data/G1.json");
-        EditGraph graph = new EditGraph(null, algo);
+        _currGraph = _algorithm.copy();
     }
 }

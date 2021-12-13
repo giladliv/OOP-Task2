@@ -4,17 +4,12 @@ import api.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import static java.awt.Frame.MAXIMIZED_BOTH;
 
 public class GraphZone
 {
@@ -31,7 +26,8 @@ public class GraphZone
 
     public GraphZone(DirectedWeightedGraphAlgorithms algorithm, int x, int y, int w, int h, JPanel panel)
     {
-        circle = new ImageIcon("pics/circleS.png");
+        circle = new ImageIcon(this.getClass().getResource("/Simulator/circleS.png"));
+
         shpeNode = new HashMap<>();
         labelNode = new HashMap<>();
         _algorithm = algorithm;
@@ -265,9 +261,7 @@ class MouseAdapterLabel extends MouseAdapter
             try
             {
                 int src = Integer.parseInt(_cmp.getName());
-                int dest = Integer.parseInt(_scndCmp.getName());
                 _canvas.updateLocation(src, _cmp.getLocation());
-                _canvas.updateLocation(dest, _scndCmp.getLocation());
                 //printArrow(src, dest);
             }
             catch (Exception ex)

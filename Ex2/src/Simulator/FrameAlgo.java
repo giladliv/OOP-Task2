@@ -1,7 +1,7 @@
 package Simulator;
 
+import api.DirectedWeightedGraph;
 import api.DirectedWeightedGraphAlgorithms;
-import api.GraphAlgorithms;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,8 +66,8 @@ public class FrameAlgo {
 
         JButton editGraph = new JButton("Edit Graph");
         editGraph.setBounds(30, 700, 150, 50);
+        editGraph.setVisible(loadGrpah());
         panel.add(editGraph);
-        editGraph.setVisible(false);
 
         JLabel label = new JLabel("GraphAlgorithms", SwingConstants.CENTER);
         label.setBounds(10, 10, 100, 100);
@@ -201,11 +201,25 @@ public class FrameAlgo {
             }
         });
 
-        graphZone = null;
-
         //frame.pack();
         frame.repaint();
 
+    }
+
+    public boolean loadGrpah()
+    {
+        if(graphZone != null)
+        {
+            graphZone.paintAllNodesEdges();
+            return true;
+        }
+        if (_algorithm == null || _algorithm.getGraph() == null)
+        {
+            graphZone = null;
+            return false;
+        }
+        graphZone = new GraphZone(_algorithm, 200, frame.getY(), frame.getWidth() - 200, frame.getHeight(), panel);
+        return true;
     }
 
     public boolean loadGrpah(String file)
@@ -223,11 +237,4 @@ public class FrameAlgo {
         return false;
     }
 
-    public static void main(String[] args) {
-        DirectedWeightedGraphAlgorithms algorithm = new GraphAlgorithms();
-
-        FrameAlgo frameAlgo = new FrameAlgo(algorithm);
-
-
-    }
 }

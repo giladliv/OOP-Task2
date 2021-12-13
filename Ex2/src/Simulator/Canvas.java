@@ -1,12 +1,12 @@
 package Simulator;
 
 import api.*;
+import imps.*;
 
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Line2D;
 import java.text.AttributedString;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -263,7 +263,9 @@ public class Canvas extends JComponent
     {
         try
         {
-            _algorithm.getGraph().getNode(nodeId).setLocation(getGeoFromPoint(p));
+            NodeData node = _algorithm.getGraph().getNode(nodeId);
+            node.setLocation(getGeoFromPoint(p));
+            _algorithm.getGraph().addNode(node);
         }
         catch (Exception ex)
         {
