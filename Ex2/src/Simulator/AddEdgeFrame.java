@@ -4,6 +4,8 @@ import api.DirectedWeightedGraphAlgorithms;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 
 public class AddEdgeFrame
@@ -55,6 +57,15 @@ public class AddEdgeFrame
                 AddEdgeButton.setLocation((frame.getWidth() - AddEdgeButton.getWidth())/2, 150);
                 panel.add(AddEdgeButton);
 
+                frame.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosing(WindowEvent e) {
+                                old.setVisible(true);
+                                super.windowClosing(e);
+                                MouseAdapterLabel.nodesPicked.clear();
+
+                        }
+                });
                 AddEdgeButton.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -112,6 +123,7 @@ public class AddEdgeFrame
                 });
                 frame.add(panel);
                 frame.setVisible(true);
+
         }
 
 

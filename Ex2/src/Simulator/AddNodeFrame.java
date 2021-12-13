@@ -72,6 +72,16 @@ public class AddNodeFrame
                         }
 
                 });
+
+                frame.addWindowListener(new WindowAdapter() {
+                        @Override
+                        public void windowClosing(WindowEvent e) {
+                                old.setVisible(true);
+                                super.windowClosing(e);
+                                MouseAdapterLabel.nodesPicked.clear();
+
+                        }
+                });
                 frame.add(panel);
                 frame.setVisible(true);
         }
