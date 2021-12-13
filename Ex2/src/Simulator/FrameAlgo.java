@@ -38,6 +38,8 @@ public class FrameAlgo {
         panel.setLayout(null);
         frame.add(panel);
 
+        // create buttons for us to use
+
         JButton load = new JButton("Set Graph");
         load.setBounds(30, 100, 150, 50);
         panel.add(load);
@@ -73,17 +75,22 @@ public class FrameAlgo {
         label.setBounds(10, 10, 100, 100);
         panel.add(label);
 
+
+        // when load has been pressed
         load.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent e)
             {
+                //gets from user the directory
                 JFileChooser fileChooser = new JFileChooser();
                 fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+
+                // if the user agreed
                 if (fileChooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION)
                 {
                     String path = fileChooser.getSelectedFile().getAbsolutePath();
-                    if (loadGrpah(path))
+                    if (loadGrpah(path)) // load and init all the sroundings
                     {
                         showCenter = false;
                         MouseAdapterLabel.resetAll();
@@ -101,11 +108,11 @@ public class FrameAlgo {
                 if (graphZone == null)
                     return;
 
-                graphZone.paintAllNodesEdges();
+                graphZone.paintAllNodesEdges(); // repaint to start
                 JOptionPane.showMessageDialog(frame, "Please Press on the wanted 2 nodes,\n if you wish to cancel one of the - just click on it");
-                MouseAdapterLabel.needToPick = 2;
-                mode = SHORTEST_PATH;
-                finish.setVisible(true);
+                MouseAdapterLabel.needToPick = 2;   // can only select 2 points
+                mode = SHORTEST_PATH;               // the mode now is the shortest path
+                finish.setVisible(true);            // need to finish
             }
         });
         finish.addActionListener(new ActionListener() {
@@ -115,18 +122,23 @@ public class FrameAlgo {
                 if (graphZone == null)
                     return;
 
-                if (mode == SHORTEST_PATH)
+                if (mode == SHORTEST_PATH) // if now shrtest path then select only two points
                 {
                     if (MouseAdapterLabel.nodesPicked.size() == 2)
                     {
-                        int src = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(0).getName());
-                        int dest = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(1).getName());
+                        int src = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(0).getName()); // get the first
+                        int dest = Integer.parseInt(MouseAdapterLabel.nodesPicked.get(1).getName());// get the dest
                         mode = NONE;
                         finish.setVisible(false);
                         double dist = graphZone.performShortestPath(src, dest);
                         MouseAdapterLabel.resetPicked();
                         MouseAdapterLabel.needToPick = 0;
                         JOptionPane.showMessageDialog(frame, "The shortest path for  " + src + " --> " + dest + "  =  " + dist);
+                    }
+                    else
+                    {
+                        finish.setVisible(false);
+                        MouseAdapterLabel.resetPicked();
                     }
                 }
                 else if(mode == TSP)
@@ -138,7 +150,11 @@ public class FrameAlgo {
                         graphZone.performTSP();
                         MouseAdapterLabel.resetPicked();
                         MouseAdapterLabel.needToPick = 0;
-                        //JOptionPane.showMessageDialog(frame, "The shortest path for  ");
+                    }
+                    else
+                    {
+                        finish.setVisible(false);
+                        MouseAdapterLabel.resetPicked();
                     }
                 }
             }
@@ -150,11 +166,12 @@ public class FrameAlgo {
                 if (graphZone == null)
                     return;
 
-                graphZone.paintAllNodesEdges();
+                graphZone.paintAllNodesEdges(); // reset the graph
                 String con = _algorithm.isConnected() ? "" : "NOT ";
-                JOptionPane.showMessageDialog(frame, "The cuurent graph is " + con + "Connected");
+                JOptionPane.showMessageDialog(frame, "The cuurent graph is " + con + "Connected"); // show if connected or not
             }
         });
+
         center.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -206,31 +223,42 @@ public class FrameAlgo {
 
     }
 
+    /**
+     * load graph at initialization
+     * @return
+     */
     public boolean loadGrpah()
     {
-        if(graphZone != null)
+        if(graphZone != null)   // if already exists, repaint
         {
             graphZone.paintAllNodesEdges();
             return true;
         }
-        if (_algorithm == null || _algorithm.getGraph() == null)
+        if (_algorithm == null || _algorithm.getGraph() == null) // if canot be used then set to null
         {
             graphZone = null;
             return false;
         }
+        //set the graph zone with known values
         graphZone = new GraphZone(_algorithm, 200, frame.getY(), frame.getWidth() - 200, frame.getHeight(), panel);
         return true;
     }
 
+    /**
+     * load graph form file
+     * @param file
+     * @return
+     */
     public boolean loadGrpah(String file)
     {
-        if (_algorithm.load(file))
+        if (_algorithm.load(file)) // if can be loaded
         {
-            if(graphZone != null)
+            if(graphZone != null) // if already has been created just update
             {
                 graphZone.paintAllNodesEdges();
                 return true;
             }
+            //esle create it
             graphZone = new GraphZone(_algorithm, 200, frame.getY(), frame.getWidth() - 200, frame.getHeight(), panel);
             return true;
         }
