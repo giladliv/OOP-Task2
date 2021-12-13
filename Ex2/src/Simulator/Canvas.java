@@ -28,6 +28,14 @@ public class Canvas extends JComponent
     private HashSet<String> specialEdges;
 
 
+    /**
+     * c'tor for the Canvas - Canvas is the area that has all the nodes and edges
+     * @param x x location
+     * @param y y location
+     * @param w width
+     * @param h height
+     * @param algorithm the algorithm object to perform algorithms
+     */
     public Canvas(int x, int y, int w, int h, DirectedWeightedGraphAlgorithms algorithm)
     {
         setBounds(x + LEN / 2, y + LEN / 2, w - LEN, h - LEN);
@@ -35,19 +43,22 @@ public class Canvas extends JComponent
         nodes = new HashMap<>();
         edges = new HashMap<>();
         _algorithm = algorithm;
-        setRatioPoins();
+        setRatioPoins();                // sets the points and seting the ratio according to the 3d locations
         specialEdges = new HashSet<>();
     }
 
+    /**
+     * set the path according to the nodes order, only the path will be shown
+     * @param nodes orderd nodes
+     */
     public void setPath(List<NodeData> nodes)
     {
         specialEdges.clear();
         for (int i = 0; i < nodes.size() - 1; i++)
         {
-            specialEdges.add(nodes.get(i) + "," + nodes.get(i + 1));
+            specialEdges.add(nodes.get(i) + "," + nodes.get(i + 1));     // set the edge for each 2 nodes in list
         }
-        repaint();
-        //specialEdges.clear();
+        repaint(); // draw the graph again
     }
 
     public void removePath()
@@ -55,11 +66,16 @@ public class Canvas extends JComponent
         specialEdges.clear();
     }
 
+    //get the point that starts by the original axis
     public GeoLocation get_startPoint()
     {
         return new GeoLocationImp(_startPoint);
     }
 
+    /**
+     * get the first and last position on the original graph
+     * @return
+     */
     private GeoLocation[] getRangeNodes()
     {
         double[][] range = new double[][] {{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE},
@@ -82,6 +98,9 @@ public class Canvas extends JComponent
                                     new GeoLocationImp(range[1][0], range[1][1], range[1][2])};
     }
 
+    /**
+     * set the ratio by the canvas size and start ending points
+     */
     public void setRatioPoins()
     {
         GeoLocation[] minMaxPoints = getRangeNodes();
@@ -91,13 +110,25 @@ public class Canvas extends JComponent
         _startPoint = minMaxPoints[0];
     }
 
+    /**
+     * gets the location on GUI by a 3d location
+     * @param location
+     * @return
+     */
     public Point getPointFromGeo(GeoLocation location)
     {
         double x = location.x(), y = location.y();
+        //computes based on how far from start axis points
         Point p = new Point((int)((x - _startPoint.x()) / _ratioAxis.x()), (int)((y-_startPoint.y()) / _ratioAxis.y()));
         p.setLocation(p.x, getHeight() - p.y - 2*LEN);
         return p;
     }
+
+    /**
+     * gets the 3d location from position on the GUI
+     * @param p
+     * @return
+     */
     public GeoLocation getGeoFromPoint(Point p)
     {
         double x = p.x * _ratioAxis.x() + _startPoint.x();
@@ -106,22 +137,22 @@ public class Canvas extends JComponent
         return new GeoLocationImp(x, y, 0);
     }
 
-    private Line2D.Double getLine(int x1, int y1, int x2, int y2)
-    {
-        return new Line2D.Double(x1, y1, x2, y2); //line to paint from point to another point
-    }
-
+    /**
+     * set a line according to two points - used for arrow body
+     * @param p1
+     * @param p2
+     */
     public void setLine(Point p1, Point p2)
     {
         line = new Line2D.Double(p1, p2);
     }
 
-    public void setLine(Line2D line)
-    {
-        this.line = line;
-        //repaint();
-    }
-
+    /**
+     * set a triangle by 3 points - used for arrow head
+     * @param p1
+     * @param p2
+     * @param p3
+     */
     public void setTri(Point p1, Point p2, Point p3)
     {
         tri = new Polygon();
@@ -130,29 +161,37 @@ public class Canvas extends JComponent
         tri.addPoint(p3.x, p3.y);
     }
 
+    /**
+     * set arrow between 2 nodes (as their labels)
+     * @param node1
+     * @param node2
+     * @param w weight of edge
+     */
     public void setArrow(JLabel node1, JLabel node2, double w)
     {
         try
         {
-            int src = Integer.parseInt(node1.getName());
-            int dest = Integer.parseInt(node2.getName());
-            nodes.put(src, node1);
+            int src = Integer.parseInt(node1.getName());        // gets the src node id
+            int dest = Integer.parseInt(node2.getName());       // gets the src node id
+            nodes.put(src, node1);                              // puts the src and dest in the nodes hash
             nodes.put(dest, node2);
             if (!edges.containsKey(src))
             {
                 edges.put(src, new HashMap<>());
             }
             edges.get(src).put(dest, w);
-            //repaint();
-            //printArrow(src, dest);
         }
-        catch (Exception ex)
-        {
-
-        }
+        catch (Exception ex) {}     // if had some troubles with parsing
 
     }
 
+    /**
+     * gets the point that far from a given point by some length and degree of beta
+     * @param point
+     * @param beta
+     * @param dist
+     * @return
+     */
     public Point getNearRadPoint(Point point, double beta, double dist)
     {
         Point p = new Point(point);
@@ -160,10 +199,17 @@ public class Canvas extends JComponent
         return p;
     }
 
+    /**
+     * if the nodes has 2 sided edges, then print then seperatly that the weight can be seen
+     * @param src
+     * @param dest
+     * @param canvas
+     */
     public void printDoubeEdge(int src, int dest, Graphics2D canvas)
     {
         JLabel node1 = nodes.get(src);
         JLabel node2 = nodes.get(dest);
+        // getting both of their centers
         Point center1 = node1.getLocation();
         int r = LEN / 2;
         center1.translate(r, r);
@@ -173,25 +219,27 @@ public class Canvas extends JComponent
         Point original1 = new Point(center1);
         Point original2 = new Point(center2);
 
+
         double angle = Math.atan2(center2.y - center1.y, center2.x - center1.x);
-        double beta = angle + Math.toRadians(90);
+        double beta = angle + Math.toRadians(90);       //  print 90 deg more then the curr deg
         center1.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         center2.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
+        // if there is no path to be printed, or if it's indeed part of path then print it
         if (specialEdges.isEmpty() || (!specialEdges.isEmpty() && canvas.getColor() == Color.BLUE))
         {
-            setPartsOfArrow(canvas, radiusCut, center1, center2, edges.get(src).get(dest));
-            drawString(canvas, center1, center2, false, edges.get(src).get(dest));
+            setPartsOfArrow(canvas, radiusCut, center1, center2, edges.get(src).get(dest)); // first print body and head
+            drawString(canvas, center1, center2, false, edges.get(src).get(dest));    // print the weight
         }
 
 
-        beta = angle - Math.toRadians(90);
+        beta = angle - Math.toRadians(90);  // print 90 deg less then the original deg
         center1 = new Point(original1);
         center2 = new Point(original2);
         center1.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         center2.translate((int)(Math.cos(beta)*arwHead), (int)(Math.sin(beta)*arwHead));
         canvas.setColor(specialEdges.contains(dest + "," + src) ? Color.BLUE : Color.BLACK);
-
+        // if there is no path to be printed, or if it's indeed part of path then print it
         if (specialEdges.isEmpty() || (!specialEdges.isEmpty() && canvas.getColor() == Color.BLUE))
         {
             setPartsOfArrow(canvas, radiusCut, center2, center1, edges.get(dest).get(src));
@@ -199,17 +247,24 @@ public class Canvas extends JComponent
         }
     }
 
+    /**
+     * print single arrow
+     * @param src
+     * @param dest
+     * @param canvas
+     */
     public void printArrow(int src, int dest, Graphics2D canvas)
     {
         JLabel node1 = nodes.get(src);
         JLabel node2 = nodes.get(dest);
         Point center1 = node1.getLocation();
         int r = LEN / 2;
-        center1.translate(r, r);
+        center1.translate(r, r);                // the center is half of the square
         Point center2 = node2.getLocation();
         center2.translate(r, r);
 
         canvas.setColor(specialEdges.contains(src + "," + dest) ? Color.BLUE : Color.BLACK);
+        // if there is no path to be printed, or if it's indeed part of path then print it
         if (specialEdges.isEmpty() || (!specialEdges.isEmpty() && canvas.getColor() == Color.BLUE))
         {
             setPartsOfArrow(canvas, r, center1, center2, edges.get(src).get(dest));
@@ -218,20 +273,41 @@ public class Canvas extends JComponent
 
     }
 
+    /**
+     * by given 2 points set weight as string on canvas from some side(Up or Down), in the middle
+     * @param canvas
+     * @param center1
+     * @param center2
+     * @param isUp
+     * @param w
+     */
     public void drawString(Graphics2D canvas, Point center1, Point center2, boolean isUp, double w)
     {
-        String num = (float) Math.round(w * 100) / 100 + "";
+        String num = (float) Math.round(w * 100) / 100 + ""; // get only 2 digits after point
+
+        // settings of the string that to be printed
         AttributedString attr = new AttributedString(num);
         attr.addAttribute(TextAttribute.BACKGROUND, Color.white);
         attr.addAttribute(TextAttribute.SIZE, 8);
-        //canvas.setFont(new Font("TimesRoman", Font.BOLD, 5));
-        double alpha = Math.atan2(center2.y - center1.y, center2.x - center1.x);
-        alpha += (isUp ? Math.toDegrees(90) : Math.toDegrees(-90));
-        Point p1 = getNearRadPoint(center1, alpha, arwHead);
-        Point p2 = getNearRadPoint(center2, alpha, arwHead);
+
+        // copmute where it must be
+        double alpha = Math.atan2(center2.y - center1.y, center2.x - center1.x);    // get the degree
+        alpha += (isUp ? Math.toDegrees(90) : Math.toDegrees(-90));                 // if its up add 90 deg, else sub 90 deg
+        Point p1 = getNearRadPoint(center1, alpha, arwHead);                        // get the first new point with some dost from it
+        Point p2 = getNearRadPoint(center2, alpha, arwHead);                        //same as above
         canvas.drawString(attr.getIterator() , (p1.x + p2.x - num.length() * 4)/2, (p1.y + p2.y)/2);
+        // set it in the middle of those 2 points
     }
 
+    /**
+     * by given radius of the shape, 2 points and weight, the method sets to the drawing area the body of the arrow,
+     * the arrow head and its weight
+     * @param canvas
+     * @param r
+     * @param center1
+     * @param center2
+     * @param w
+     */
     public void setPartsOfArrow(Graphics2D canvas, double r, Point center1, Point center2, double w)
     {
         double dist = center1.distance(center2);
@@ -239,42 +315,52 @@ public class Canvas extends JComponent
 
         Point p4 = new Point(center1);
         p4.translate((int)((dist-r)*Math.cos(angle)), (int)((dist-r)*Math.sin(angle)));
+        // get the point from the start point on the same line with dist of (dist - r)
 
-        dist = center1.distance(p4) - 10;
+        dist = center1.distance(p4) - 10; // sets the length to set the next points
         double deg = Math.abs(Math.toDegrees(Math.asin(arwHead/dist)));
         double alpha = Math.toDegrees(Math.atan2(p4.y - center1.y, p4.x - center1.x));
         double beta = Math.toRadians(alpha + deg);
         Point pTri1 = new Point(center1);
-        pTri1.translate((int)(Math.cos(beta)*dist), (int)(Math.sin(beta)*dist));
+        pTri1.translate((int)(Math.cos(beta)*dist), (int)(Math.sin(beta)*dist));    // set the upper point of triangle
         beta = Math.toRadians(alpha - deg);
         Point pTri2 = new Point(center1);
-        pTri2.translate((int)(Math.cos(beta)*dist), (int)(Math.sin(beta)*dist));
+        pTri2.translate((int)(Math.cos(beta)*dist), (int)(Math.sin(beta)*dist));    // set the lower side of the triangle
 
-        setLine(center1, center2);
-        setTri(p4, pTri1, pTri2);
-        canvas.draw(line);
-        canvas.fill(tri);
+        setLine(center1, center2);      // set the body
+        setTri(p4, pTri1, pTri2);       // sets the arrow head
+        canvas.draw(line);              // draw the body
+        canvas.fill(tri);               // draw the head
 
     }
 
 
-
+    /**
+     * updates the location of certian node to point in the GUI
+     * @param nodeId
+     * @param p
+     * @return
+     */
     public boolean updateLocation(int nodeId, Point p)
     {
         try
         {
             NodeData node = _algorithm.getGraph().getNode(nodeId);
             node.setLocation(getGeoFromPoint(p));
-            _algorithm.getGraph().addNode(node);
+            _algorithm.getGraph().addNode(node);    //overloading point with new location
         }
         catch (Exception ex)
         {
-            return false;
+            return false;   // if failed then return false
         }
         return true;
     }
 
 
+    /**
+     * every time that nedds to repainted the function is called
+     * @param g
+     */
     @Override
     protected void paintComponent(Graphics g)
     {
@@ -282,8 +368,8 @@ public class Canvas extends JComponent
         // a 2D graph
         Graphics2D canvas = (Graphics2D) g;
         canvas.setColor(Color.BLACK);
-        canvas.setStroke(new BasicStroke(2));
-        //set the border
+        canvas.setStroke(new BasicStroke(2)); //make the arrow more bold
+
         HashSet<String> edgesStr = new HashSet<>();
         for (int src: edges.keySet())
         {
@@ -295,20 +381,20 @@ public class Canvas extends JComponent
                     // complete double check
                     if (!edgesStr.contains(currStr))
                     {
-                        printDoubeEdge(src, dest, canvas);
-                        edgesStr.add(dest + "," + src);
+                        printDoubeEdge(src, dest, canvas);  // if the opposite also exists than print as double
+                        edgesStr.add(dest + "," + src);     // add the curr edge as string
                     }
                 }
                 else
                 {
-                    printArrow(src, dest, canvas);
+                    printArrow(src, dest, canvas);      // in any case print as single arrow
                 }
 
                 edgesStr.add(currStr);
 
             }
         }
-        removePath();
+        removePath();   // after printing set path to default
 
     }
 }
