@@ -30,20 +30,25 @@ Exapmle of the window on G1.json:
 after pressing the button, select the json file that presents the Graph
 after opening it the graph will be updated
 
+
 #### Shortest path
 select two nodes, after done choosing click on the *Finish Choosing* button to perform the shortest path,
 please note that the order is crusial, and when you click on the same selected node it will removed from being choosen.
 Then only the nodes and edges that involved will be shown, to the user.
 Pressing on any button will refresh the graph to the origins
-Runtime = O(|V|+|E|)
+
+*Runtime = O(|V|+|E|)*
+
 
 #### Center of graph
 the center will be shown, after that another click on the same button will remove the presentation.
-Runtime = O(|V|x(|V|+|E|))
+
+*Runtime = O(|V|x(|V|+|E|))*
 
 #### TSP
 similar to selecting the Shortest path, after done selecting it will show only the nodes and edges that involved.
-Runtime = O(|V| x (|V|+|E|)^2)
+
+*Runtime = O(|V| x (|V|+|E|)^2)*
 
 
 Example of the buttons with finish choosing:
